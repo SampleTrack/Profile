@@ -32,7 +32,6 @@ class Media(Document):
     caption = fields.StrField(allow_none=True)
 
     class Meta:
-        indexes = ('$file_name', )
         collection_name = COLLECTION_NAME
 
 
