@@ -17,13 +17,9 @@ client = AsyncIOMotorClient(FILE_DB_URL)
 db = client[FILE_DB_NAME]
 instance = Instance.from_db(db)
 
-
-
-
-
 @instance.register
 class Media(Document):
-    file_id = fields.StrField(required=True, unique=True, primary_field=True)
+    file_id = fields.StrField(attribute='_id')
     file_ref = fields.StrField(allow_none=True)
     file_name = fields.StrField(required=True)
     file_size = fields.IntField(required=True)
