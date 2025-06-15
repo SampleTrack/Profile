@@ -11,7 +11,7 @@ import asyncio
 from pyrogram import Client, __version__
 from pyrogram.raw.all import layer
 from database.users_chats_db import db
-from info import SESSION, API_ID, API_HASH, BOT_TOKEN, PORT, LOG_CHANNEL
+from info import SESSION, API_ID, API_HASH, BOT_TOKEN, UPTIME, PORT, LOG_CHANNEL
 from utils import temp
 from aiohttp import web
 from datetime import date, datetime 
@@ -44,6 +44,7 @@ class Bot(Client):
         temp.U_NAME = me.username
         temp.B_NAME = me.first_name
         self.username = '@' + me.username
+        self.uptime = UPTIME
         logging.info(f"{me.first_name} with for Pyrogram v{__version__} (Layer {layer}) started on {me.username}.")
         tz = pytz.timezone('Asia/Kolkata')
         today = date.today()
