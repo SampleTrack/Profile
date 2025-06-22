@@ -100,28 +100,43 @@ async def pm_spoll_tester(bot, query):
 async def pm_AutoFilter(client, msg, pmspoll=False):    
     if not pmspoll:
         message = msg
+
+        # ✅ Check if it's a command or symbol-based message
         if message.text.startswith("/"): return
         if re.findall(r"((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text): return
+
+        # ✅ Filter based on text length
         if 2 < len(message.text) < 100:
             search = message.text
-            message = msg.message.reply_to_message  # msg will be callback query
-            # 1. Reply to the original search message
-            wait_msg = await message.reply_text("⏳ Hang tight, searching for you...")
-            
+
+            # ❌ ERROR FIX: you're trying to access reply_to_message from msg.message, but msg is not a callback here
+            if message.reply_to_message:
+                original_message = message.reply_to_message
+            else:
+                original_message = message
+
+            # ⏳ Wait message
+            wait_msg = await original_message.reply_text("⏳ Hang tight, searching for you...")
+
+            # ✅ Perform search
             files, offset, total_results = await get_search_results(search.lower(), offset=0, filter=True)
-            
+
             if not files:
                 await wait_msg.edit("❌ No results found.")
                 return await pm_spoll_choker(wait_msg)
-            
-            # You can continue here to send results, etc.
+
+            # ✅ Proceed to send files (your logic continues here)
+            # ...
+
         else:
-            return 
+            return
+
     else:
-        # For callback query context (e.g., pagination or filtering)
+        # 🔁 For callback query (pagination or filter changes)
         message = msg.message.reply_to_message
         search, files, offset, total_results = pmspoll
-        wait_msg = msg.message  # callback query msg
+        wait_msg = msg.message
+        # Continue handling callback logic
         
     pre = 'pmfilep' if PROTECT_CONTENT else 'pmfile'
 
