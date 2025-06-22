@@ -18,7 +18,6 @@ logger.setLevel(logging.ERROR)
 
 @Client.on_message(filters.private & filters.text & filters.chat(AUTH_USERS) if AUTH_USERS else filters.text & filters.private)
 async def auto_pm_fill(b, m):
-    m = f"Hang tight, searching for you..."
     if PMFILTER:       
         if G_FILTER:
             kd = await global_filters(b, m)
