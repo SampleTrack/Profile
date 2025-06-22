@@ -105,7 +105,7 @@ async def pm_AutoFilter(client, msg, pmspoll=False):
         if 2 < len(message.text) < 100:
             search = message.text
             # 1. Reply to the original search message
-            wait_msg = await message.reply_text("⏳ Hang tight, searching for you...")
+            wait_msg = await msg.reply_text("⏳ Hang tight, searching for you...")
             
             files, offset, total_results = await get_search_results(search.lower(), offset=0, filter=True)
             
