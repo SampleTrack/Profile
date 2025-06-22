@@ -104,19 +104,24 @@ async def pm_AutoFilter(client, msg, pmspoll=False):
         if re.findall(r"((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text): return
         if 2 < len(message.text) < 100:
             search = message.text
-            # 1. Send a "Searching..." message and store it
-            wait_msg = await message.reply("⏳ Hang tight, searching for you...")
+            # 1. Reply to the original search message
+            wait_msg = await message.reply_text("⏳ Hang tight, searching for you...")
+            
             files, offset, total_results = await get_search_results(search.lower(), offset=0, filter=True)
+            
             if not files:
                 await wait_msg.edit("❌ No results found.")
-                return await pm_spoll_choker(msg)              
+                return await pm_spoll_choker(wait_msg)
+            
+            # You can continue here to send results, etc.
         else:
             return 
     else:
+        # For callback query context (e.g., pagination or filtering)
         message = msg.message.reply_to_message
         search, files, offset, total_results = pmspoll
         wait_msg = msg.message  # callback query msg
-
+        
     pre = 'pmfilep' if PROTECT_CONTENT else 'pmfile'
 
     if SHORT_URL and SHORT_API:          
