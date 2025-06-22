@@ -99,45 +99,17 @@ async def pm_spoll_tester(bot, query):
 
 async def pm_AutoFilter(client, msg, pmspoll=False):    
     if not pmspoll:
-        message = msg
-
-        # ✅ Check if it's a command or symbol-based message
-        if message.text.startswith("/"): return
-        if re.findall(r"((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text): return
-
-        # ✅ Filter based on text length
+        message = msg   
+        if message.text.startswith("/"): return  # ignore commands
+        if re.findall("((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text): return
         if 2 < len(message.text) < 100:
             search = message.text
-
-            # ❌ ERROR FIX: you're trying to access reply_to_message from msg.message, but msg is not a callback here
-            if message.reply_to_message:
-                original_message = message.reply_to_message
-            else:
-                original_message = message
-
-            # ⏳ Wait message
-            wait_msg = await original_message.reply_text("⏳ Hang tight, searching for you...")
-
-            # ✅ Perform search
             files, offset, total_results = await get_search_results(search.lower(), offset=0, filter=True)
-
-            if not files:
-                await wait_msg.edit("❌ No results found.")
-                return await pm_spoll_choker(wait_msg)
-
-            # ✅ Proceed to send files (your logic continues here)
-            # ...
-
-        else:
-            return
-
+            if not files: return await pm_spoll_choker(msg)              
+        else: return 
     else:
-        # 🔁 For callback query (pagination or filter changes)
-        message = msg.message.reply_to_message
+        message = msg.message.reply_to_message  # msg will be callback query
         search, files, offset, total_results = pmspoll
-        wait_msg = msg.message
-        # Continue handling callback logic
-        
     pre = 'pmfilep' if PROTECT_CONTENT else 'pmfile'
 
     if SHORT_URL and SHORT_API:          
@@ -172,7 +144,8 @@ async def pm_AutoFilter(client, msg, pmspoll=False):
         imdb = await get_poster(search)
     else:
         imdb = None
-
+    wait_msg = await message.reply_text("⏳ Hang tight, searching for you...")
+            
     TEMPLATE = IMDB_TEMPLATE
     if imdb:
         cap = TEMPLATE.format(
