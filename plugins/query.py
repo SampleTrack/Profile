@@ -295,9 +295,17 @@ async def cb_handler(client: Client, query: CallbackQuery):
     
         # Check verification
         if IS_VERIFY and not await check_verification(client, query.from_user.id):
+            verify_link = await get_token(
+                client,
+                query.from_user.id,
+                f"https://telegram.me/{temp.U_NAME}?start=",
+                file_id
+            )
+            # print for debugging
+            print(f"Verification link generated: {verify_link}")
             btn = [
                 [
-                    InlineKeyboardButton("✅ Vᴇʀɪғʏ", url=await get_token(client, query.from_user.id, f"https://telegram.me/{temp.U_NAME}?start=", file_id)),
+                    InlineKeyboardButton("✅ Vᴇʀɪғʏ", url=verify_link),
                     InlineKeyboardButton("ℹ️ Hᴏᴡ Tᴏ Vᴇʀɪғʏ", url=HOW_TO_VERIFY)
                 ]
             ]
