@@ -373,65 +373,60 @@ async def admin_filter(filt, client, message):
     return await admin_check(message)
 
 
-async def get_verify_shorted_link(bot, num, link):
-    try:
-        if int(num) == 1:
-            API = VERIFY1_API
-            URL = VERIFY1_URL
-        else:
-            API = VERIFY2_API
-            URL = VERIFY2_URL
-        https = link.split(":")[0]
-        if "http" == https:
-            https = "https"
-            link = link.replace("http", https)
-    
-        if URL == "api.shareus.in":
-            url = f"https://{URL}/shortLink"
-            params = {"token": API,
-                      "format": "json",
-                      "link": link,
-                      }
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url, params=params, raise_for_status=True, ssl=False) as response:
-                        data = await response.json(content_type="text/html")
-                        if data["status"] == "success":
-                            return data["shortlink"]
+async def get_verify_shorted_link(num, link):
+    if int(num) == 1:
+        API = VERIFY1_API
+        URL = VERIFY1_URL
+    else:
+        API = VERIFY2_API
+        URL = VERIFY2_URL
+    https = link.split(":")[0]
+    if "http" == https:
+        https = "https"
+        link = link.replace("http", https)
+
+    if URL == "api.shareus.in":
+        url = f"https://{URL}/shortLink"
+        params = {"token": API,
+                  "format": "json",
+                  "link": link,
+                  }
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=params, raise_for_status=True, ssl=False) as response:
+                    data = await response.json(content_type="text/html")
+                    if data["status"] == "success":
+                        return data["shortlink"]
+                    else:
+                        logger.error(f"Error: {data['message']}")
+                        return f'https://{URL}/shortLink?token={API}&format=json&link={link}'
+
+        except Exception as e:
+            logger.error(e)
+            return f'https://{URL}/shortLink?token={API}&format=json&link={link}'
+    else:
+        url = f'https://{URL}/api'
+        params = {'api': API,
+                  'url': link,
+                  }
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=params, raise_for_status=True, ssl=False) as response:
+                    data = await response.json()
+                    if data["status"] == "success":
+                        return data["shortenedUrl"]
+                    else:
+                        logger.error(f"Error: {data['message']}")
+                        if URL == 'clicksfly.com':
+                            return f'https://{URL}/api?api={API}&url={link}'
                         else:
-                            logger.error(f"Error: {data['message']}")
-                            return f'https://{URL}/shortLink?token={API}&format=json&link={link}'
-    
-            except Exception as e:
-                logger.error(e)
-                return f'https://{URL}/shortLink?token={API}&format=json&link={link}'
-        else:
-            url = f'https://{URL}/api'
-            params = {'api': API,
-                      'url': link,
-                      }
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url, params=params, raise_for_status=True, ssl=False) as response:
-                        data = await response.json()
-                        if data["status"] == "success":
-                            return data["shortenedUrl"]
-                        else:
-                            logger.error(f"Error: {data['message']}")
-                            if URL == 'clicksfly.com':
-                                return f'https://{URL}/api?api={API}&url={link}'
-                            else:
-                                return f'https://{URL}/api?api={API}&link={link}'
-            except Exception as e:
-                logger.error(e)
-                if URL == 'clicksfly.com':
-                    return f'https://{URL}/api?api={API}&url={link}'
-                else:
-                    return f'https://{URL}/api?api={API}&link={link}'
-    except Exception as e:
-        logging.error(f"❌ Error occurred while verifying user {userid}: {e}", exc_info=True)
-        # Optional: send a message to admin or log channel
-        await bot.send_message(LOG_CHANNEL, f"⚠️ Error verifying user `{userid}`:\n`{str(e)}`")
+                            return f'https://{URL}/api?api={API}&link={link}'
+        except Exception as e:
+            logger.error(e)
+            if URL == 'clicksfly.com':
+                return f'https://{URL}/api?api={API}&url={link}'
+            else:
+                return f'https://{URL}/api?api={API}&link={link}'
 
 async def check_token(bot, userid, token):
     try:
