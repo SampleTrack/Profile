@@ -16,14 +16,20 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
 
-@Client.on_message(filters.private & filters.text & filters.chat(AUTH_USERS) if AUTH_USERS else filters.text & filters.private)
+@Client.on_message(filters.private & filters.text & (filters.chat(AUTH_USERS) if AUTH_USERS else True))
 async def auto_pm_fill(b, m):
-    if PMFILTER:       
+    if PMFILTER:
+        # 🔁 Send instant reply to user
+        await m.reply_text("🔍 Searching... Please wait", quote=True)
+
         if G_FILTER:
             kd = await global_filters(b, m)
-            if kd == False: await pm_AutoFilter(b, m)
-        else: await pm_AutoFilter(b, m)
-    else: return 
+            if kd == False:
+                await pm_AutoFilter(b, m)
+        else:
+            await pm_AutoFilter(b, m)
+    else:
+        return
 
 @Client.on_callback_query(filters.create(lambda _, __, query: query.data.startswith("pmnext")))
 async def pm_next_page(bot, query):
