@@ -95,7 +95,7 @@ IMDB_TEMPLATE = environ.get("IMDB_TEMPLATE", script.IMDB_TEMPLATE)
 # Others
 PORT = environ.get("PORT", "8080")
 IMDB_DELET_TIME = int(environ.get('IMDB_DELET_TIME', "300"))
-PM_IMDB = is_enabled(environ.get('PM_IMDB', "True"), True)
+PM_IMDB = is_enabled(environ.get('PM_IMDB', "False"), False)
 CUSTOM_FILE_CAPTION = environ.get("CUSTOM_FILE_CAPTION", "{file_name}")
 BATCH_FILE_CAPTION = environ.get("BATCH_FILE_CAPTION", None)
 LONG_IMDB_DESCRIPTION = is_enabled(environ.get("LONG_IMDB_DESCRIPTION", "False"), False)
