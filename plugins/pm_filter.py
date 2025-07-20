@@ -20,14 +20,14 @@ logger.setLevel(logging.ERROR)
 async def auto_pm_fill(b, m):
     if PMFILTER:
         # 🔍 Send instant reply to user indicating search is in progress
-        wait_msg = await m.reply("🔍 Searching... Please wait", quote=True)
+        s = await m.reply("🔍 Searching... Please wait", quote=True)
         try:
             if G_FILTER:
                 kd = await global_filters(b, m)
                 if kd == False:
-                    await pm_AutoFilter(b, m)
+                    await pm_AutoFilter(b, m, s)
             else:
-                await pm_AutoFilter(b, m)
+                await pm_AutoFilter(b, m, s)
         except Exception as e:
             # You can log or handle the error here
             await m.reply(f"❌ Error occurred: {str(e)}")
@@ -106,9 +106,10 @@ async def pm_spoll_tester(bot, query):
         await k.delete()
 
 
-async def pm_AutoFilter(client, msg, pmspoll=False):    
+async def pm_AutoFilter(client, msg, txt, pmspoll=False):    
     if not pmspoll:
-        message = msg   
+        message = msg
+        wait_msg = txt
         if message.text.startswith("/"): return  # ignore commands
         if re.findall("((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text): return
         if 2 < len(message.text) < 100:
@@ -117,7 +118,7 @@ async def pm_AutoFilter(client, msg, pmspoll=False):
             if not files: return await pm_spoll_choker(msg)              
         else: return 
     else:
-        message = msg.message.reply_to_message  # msg will be callback query
+        message = wait_msg.message.reply_to_message  # msg will be callback query
         search, files, offset, total_results = pmspoll
     pre = 'pmfilep' if PROTECT_CONTENT else 'pmfile'
 
@@ -149,8 +150,6 @@ async def pm_AutoFilter(client, msg, pmspoll=False):
             [InlineKeyboardButton(text="❄️ ᴩᴀɢᴇꜱ 1/1", callback_data="pages")]
         )
         
-    wait_msg = await message.reply("⏳ Hang tight, searching for you...", quote=True)
-    
     if PM_IMDB:
         imdb = await get_poster(search)
     else:
@@ -196,7 +195,6 @@ async def pm_AutoFilter(client, msg, pmspoll=False):
 
     try:
         if imdb and imdb.get('poster'):
-            await wait_msg.delete()
             try:
                 photo_msg = await message.reply_photo(photo=imdb['poster'], caption=cap, reply_markup=InlineKeyboardMarkup(btn))
                 await asyncio.sleep(IMDB_DELET_TIME)
