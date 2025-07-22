@@ -21,8 +21,6 @@ async def auto_pm_fill(b, m):
     if PMFILTER:
         # 🔍 Send instant reply to user indicating search is in progress
         s = await m.reply("🔍 Searching... Please wait", quote=True)
-        await asyncio.sleep(60)
-        return await m.delete()
         try:
             if G_FILTER:
                 kd = await global_filters(b, m)
