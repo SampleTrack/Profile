@@ -177,7 +177,7 @@ async def give_filter(client, message):
                         await wait_msg.delete()
                         return
                     else:
-                        await auto_filter(client, message)
+                        await auto_filter(client, message, wait_msg)
         else:
             # Manual Filter
             k = await manual_filters(client, message)
@@ -186,15 +186,16 @@ async def give_filter(client, message):
                     await wait_msg.delete()
                     return
                 else:
-                    await auto_filter(client, message)
+                    await auto_filter(client, message, wait_msg)
     finally:
         # Clean up the searching message after everything
         await asyncio.sleep(1)  # Optional: Give time for filtering to respond
         await wait_msg.delete()
 
-async def auto_filter(client, msg, spoll=False):
+async def auto_filter(client, msg, txt, spoll=False):
     if not spoll:
         message = msg
+        wait_msg = txt
         settings = await get_settings(message.chat.id)
         if message.text.startswith("/"): return  # ignore commands
         if re.findall("((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text):
@@ -211,7 +212,7 @@ async def auto_filter(client, msg, spoll=False):
             return
     else:
         settings = await get_settings(msg.message.chat.id)
-        message = msg.message.reply_to_message  # msg will be callback query
+        message = txt.message.reply_to_message  # msg will be callback query
         search, files, offset, total_results = spoll
     pre = 'filep' if settings['file_secure'] else 'file'
     req = message.from_user.id if message.from_user else 0
@@ -296,18 +297,17 @@ async def auto_filter(client, msg, spoll=False):
             await message.delete()
         except Exception as e:
             logger.exception(e)
-            cdb = await message.reply_text(cap, reply_markup=InlineKeyboardMarkup(btn))
+            cdb = await wait_msg.edit_text(cap, reply_markup=InlineKeyboardMarkup(btn))
             await asyncio.sleep(IMDB_DELET_TIME)
             await cdb.delete()
             await message.delete()
     else:
-        crl = await message.reply_text(cap, reply_markup=InlineKeyboardMarkup(btn))
+        crl = await wait_msg.edit_text(cap, reply_markup=InlineKeyboardMarkup(btn))
         await asyncio.sleep(IMDB_DELET_TIME)
         await crl.delete()   
         await message.delete()
     if spoll:
         await msg.message.delete()
-
 
 
 async def advantage_spell_chok(msg):
