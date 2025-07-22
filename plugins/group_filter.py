@@ -156,28 +156,41 @@ async def advantage_spoll_choker(bot, query):
             await k.delete()
 
 
-@Client.on_message(filters.group & filters.text & filters.incoming & filters.chat(AUTH_GROUPS) if AUTH_GROUPS else filters.text & filters.incoming & filters.group)
+@Client.on_message(filters.group & filters.text & filters.incoming & filters.chat(AUTH_GROUPS) if AUTH_GROUPS else filters.group & filters.text & filters.incoming)
 async def give_filter(client, message):
-    if G_FILTER:
-        if G_MODE.get(str(message.chat.id)) == "False":
-            return 
-        else:
+    # ⏳ Send searching message
+    wait_msg = await message.reply("🔍 Searching... Please wait", quote=True)
+
+    try:
+        if G_FILTER:
+            if G_MODE.get(str(message.chat.id)) == "False":
+                await wait_msg.delete()
+                return
+
+            # Global Filter
             kd = await global_filters(client, message)
-        if kd == False:          
+            if kd is False:
+                # Manual Filter
+                k = await manual_filters(client, message)
+                if k is False:
+                    if FILTER_MODE.get(str(message.chat.id)) == "False":
+                        await wait_msg.delete()
+                        return
+                    else:
+                        await auto_filter(client, message)
+        else:
+            # Manual Filter
             k = await manual_filters(client, message)
-            if k == False:
+            if k is False:
                 if FILTER_MODE.get(str(message.chat.id)) == "False":
+                    await wait_msg.delete()
                     return
                 else:
-                    await auto_filter(client, message)   
-    else:
-        k = await manual_filters(client, message)
-        if k == False:
-            if FILTER_MODE.get(str(message.chat.id)) == "False":
-                return
-            else:
-                await auto_filter(client, message)
-
+                    await auto_filter(client, message)
+    finally:
+        # Clean up the searching message after everything
+        await asyncio.sleep(1)  # Optional: Give time for filtering to respond
+        await wait_msg.delete()
 
 async def auto_filter(client, msg, spoll=False):
     if not spoll:
