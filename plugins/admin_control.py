@@ -9,13 +9,18 @@ from database.users_chats_db import db
 from database.ia_filterdb import Media
 from datetime import datetime, timedelta
 import asyncio 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import pytz
 from Script import script
 import logging, re, asyncio, time, shutil, psutil, os, sys
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
+
+
+# Configurations
+EXPIRY_HOURS = 12                      # Verification validity
+USE_12_HOUR_FORMAT = True             # Switch 12/24 hour format ON/OFF here
 
 
 @Client.on_message(filters.new_chat_members & filters.group)
@@ -495,3 +500,63 @@ async def restart_bot(bot, msg):
     await sts.delete()
     os.execl(sys.executable, sys.executable, *sys.argv)
     
+@Client.on_message(filters.command("checkveri"))
+async def check_veri(client, message):
+    args = message.text.split()
+    
+    # Determine which user ID to check
+    if len(args) > 1:
+        if message.from_user.id not in ADMINS:
+            return await message.reply("❌ You're not allowed to check others' verification status.", quote=True)
+        try:
+            user_id = int(args[1])
+        except ValueError:
+            return await message.reply("⚠️ Invalid user ID.", quote=True)
+    else:
+        user_id = message.from_user.id
+
+    # Get verification data
+    data = await db.get_verified(user_id)
+
+    date_str = data.get('date', "1999-12-31")
+    time_str = data.get('time', "23:59:59")
+    verified_dt_str = f"{date_str} {time_str}"
+
+    default_dt_str = "1999-12-31 23:59:59"
+
+    tz = pytz.timezone("Asia/Kolkata")
+
+    # Handle default unverified case
+    if verified_dt_str == default_dt_str:
+        return await message.reply("🟡 This user has not been verified yet.\nAsk them to complete their first verification.", quote=True)
+
+    # Parse and calculate expiry
+    try:
+        verified_dt = tz.localize(datetime.strptime(verified_dt_str, "%Y-%m-%d %H:%M:%S"))
+        expiry_dt = verified_dt + timedelta(hours=EXPIRY_HOURS)
+        now = datetime.now(tz)
+        time_left = expiry_dt - now
+
+        # Format time
+        if USE_12_HOUR_FORMAT:
+            verified_fmt = verified_dt.strftime("%d %b %Y, %I:%M:%S %p")
+            expiry_fmt = expiry_dt.strftime("%d %b %Y, %I:%M:%S %p")
+        else:
+            verified_fmt = verified_dt.strftime("%d %b %Y, %H:%M:%S")
+            expiry_fmt = expiry_dt.strftime("%d %b %Y, %H:%M:%S")
+
+        if time_left.total_seconds() <= 0:
+            return await message.reply(
+                f"⛔ Verification expired!\n"
+                f"🗓️ Last Verified On: `{verified_fmt}`\n"
+                f"❌ Expired At: `{expiry_fmt}`", quote=True)
+
+        await message.reply(
+            f"✅ **User is Verified**\n\n"
+            f"🗓️ Verified On : `{verified_fmt}`\n"
+            f"⏳ Expires In : `{str(time_left).split('.')[0]}`\n"
+            f"📌 Expires At : `{expiry_fmt}`", quote=True)
+
+    except Exception as e:
+        await message.reply(f"❌ Error parsing verification data.\n\nDetails: `{e}`", quote=True)
+        
