@@ -19,7 +19,6 @@ logger.setLevel(logging.ERROR)
 
 
 # Configurations
-EXPIRY_HOURS = 12                      # Verification validity
 USE_12_HOUR_FORMAT = True             # Switch 12/24 hour format ON/OFF here
 
 
@@ -501,10 +500,10 @@ async def restart_bot(bot, msg):
     os.execl(sys.executable, sys.executable, *sys.argv)
     
 @Client.on_message(filters.command("checkveri"))
-async def check_veri(client, message):
+async def check_veri(client, message: Message):
     args = message.text.split()
-    
-    # Determine which user ID to check
+
+    # Step 1: Determine user ID to check
     if len(args) > 1:
         if message.from_user.id not in ADMINS:
             return await message.reply("❌ You're not allowed to check others' verification status.", quote=True)
@@ -515,48 +514,55 @@ async def check_veri(client, message):
     else:
         user_id = message.from_user.id
 
-    # Get verification data
+    # Step 2: Fetch verification data
     data = await db.get_verified(user_id)
-
     date_str = data.get('date', "1999-12-31")
     time_str = data.get('time', "23:59:59")
     verified_dt_str = f"{date_str} {time_str}"
-
     default_dt_str = "1999-12-31 23:59:59"
 
     tz = pytz.timezone("Asia/Kolkata")
 
-    # Handle default unverified case
+    # Step 3: Handle first-time verification
     if verified_dt_str == default_dt_str:
-        return await message.reply("🟡 This user has not been verified yet.\nAsk them to complete their first verification.", quote=True)
+        if user_id == message.from_user.id:
+            return await message.reply("🟡 You haven't verified yet. Please verify to activate your access.", quote=True)
+        else:
+            return await message.reply("🟡 This user hasn't verified yet. It appears to be their first-time verification.", quote=True)
 
-    # Parse and calculate expiry
     try:
+        # Step 4: Time calculations
         verified_dt = tz.localize(datetime.strptime(verified_dt_str, "%Y-%m-%d %H:%M:%S"))
-        expiry_dt = verified_dt + timedelta(hours=EXPIRY_HOURS)
+        expiry_dt = verified_dt + timedelta(hours=12)
         now = datetime.now(tz)
         time_left = expiry_dt - now
 
-        # Format time
+        # Format time outputs
         if USE_12_HOUR_FORMAT:
-            verified_fmt = verified_dt.strftime("%d %b %Y, %I:%M:%S %p")
-            expiry_fmt = expiry_dt.strftime("%d %b %Y, %I:%M:%S %p")
+            verified_fmt = verified_dt.strftime("%d %b %Y, %I:%M:%S %p IST")
+            expiry_fmt = expiry_dt.strftime("%d %b %Y, %I:%M:%S %p IST")
         else:
-            verified_fmt = verified_dt.strftime("%d %b %Y, %H:%M:%S")
-            expiry_fmt = expiry_dt.strftime("%d %b %Y, %H:%M:%S")
+            verified_fmt = verified_dt.strftime("%d %b %Y, %H:%M:%S IST")
+            expiry_fmt = expiry_dt.strftime("%d %b %Y, %H:%M:%S IST")
 
+        # Expired case
         if time_left.total_seconds() <= 0:
             return await message.reply(
-                f"⛔ Verification expired!\n"
-                f"🗓️ Last Verified On: `{verified_fmt}`\n"
-                f"❌ Expired At: `{expiry_fmt}`", quote=True)
+                f"⛔ **Verification Expired!**\n\n"
+                f"🗓️ Last Verified On : `{verified_fmt}`\n"
+                f"❌ Expired At       : `{expiry_fmt}`", quote=True)
 
+        # Format remaining time as hours, minutes, seconds
+        hrs, rem = divmod(int(time_left.total_seconds()), 3600)
+        mins, secs = divmod(rem, 60)
+        time_left_fmt = f"{hrs}h {mins}m {secs}s"
+
+        # Final verified message
         await message.reply(
             f"✅ **User is Verified**\n\n"
-            f"🗓️ Verified On : `{verified_fmt}`\n"
-            f"⏳ Expires In : `{str(time_left).split('.')[0]}`\n"
-            f"📌 Expires At : `{expiry_fmt}`", quote=True)
+            f"🗓️ Verified On  : `{verified_fmt}`\n"
+            f"⏳ Expires In   : `{time_left_fmt}`\n"
+            f"📌 Expires At   : `{expiry_fmt}`", quote=True)
 
     except Exception as e:
         await message.reply(f"❌ Error parsing verification data.\n\nDetails: `{e}`", quote=True)
-        
