@@ -22,6 +22,7 @@ logger.setLevel(logging.ERROR)
 # Configurations
 USE_12_HOUR_FORMAT = True             # Switch 12/24 hour format ON/OFF here
 
+admin_only = filters.command & filters.user(ADMINS)
 
 @Client.on_message(filters.new_chat_members & filters.group)
 async def save_group(bot, message):
@@ -621,4 +622,194 @@ async def show_verified_users_by_date(client, message: Message):
         await message.reply_document("verified_users_by_date.txt", quote=True)
     else:
         await message.reply(final_text, quote=True)
+        
+@Client.on_message(admin_only("banz"))
+async def ban_user_cmd(client, message: Message):
+    try:
+        args = message.text.split()
+        if len(args) < 2:
+            return await message.reply("⚠️ Usage: /ban <user_id> [reason]")
+        user_id = int(args[1])
+        reason = " ".join(args[2:]) or "No reason"
+        await db.ban_user(user_id, reason)
+        await message.reply(f"✅ Banned user {user_id} for: {reason}")
+    except ValueError:
+        await message.reply("❌ Invalid user ID.")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+@Client.on_message(admin_only("unbanz"))
+async def unban_user_cmd(client, message: Message):
+    try:
+        args = message.text.split()
+        if len(args) != 2:
+            return await message.reply("⚠️ Usage: /unban <user_id>")
+        user_id = int(args[1])
+        await db.remove_ban(user_id)
+        await message.reply(f"✅ Unbanned user {user_id}")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("isban"))
+async def is_ban_cmd(client, message: Message):
+    try:
+        args = message.text.split()
+        if len(args) != 2:
+            return await message.reply("⚠️ Usage: /isban <user_id>")
+        user_id = int(args[1])
+        status = await db.get_ban_status(user_id)
+        if status["is_banned"]:
+            await message.reply(f"🚫 User {user_id} is banned.\nReason: {status['ban_reason']}")
+        else:
+            await message.reply(f"✅ User {user_id} is not banned.")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("deluser"))
+async def delete_user_cmd(client, message: Message):
+    try:
+        args = message.text.split()
+        if len(args) != 2:
+            return await message.reply("⚠️ Usage: /deluser <user_id>")
+        user_id = int(args[1])
+        await db.delete_user(user_id)
+        await message.reply(f"🗑️ Deleted user {user_id} from DB.")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("userscount"))
+async def total_users_cmd(client, message: Message):
+    try:
+        count = await db.total_users_count()
+        await message.reply(f"👥 Total users in DB: {count}")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("getbanned"))
+async def get_banned_cmd(client, message: Message):
+    try:
+        users, chats = await db.get_banned()
+        await message.reply(f"🚫 Banned Users: {len(users)}\n📛 Disabled Groups: {len(chats)}")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("verify"))
+async def verify_user_cmd(client, message: Message):
+    try:
+        args = message.text.split()
+        if len(args) != 2:
+            return await message.reply("⚠️ Usage: /verify <user_id>")
+        user_id = int(args[1])
+        now = datetime.now(pytz.timezone("Asia/Kolkata"))
+        await db.update_verification(user_id, now.date(), now.time())
+        await message.reply(f"✅ User {user_id} marked as verified.")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("checkverii"))
+async def check_veri_cmd(client, message: Message):
+    try:
+        args = message.text.split()
+        if len(args) != 2:
+            return await message.reply("⚠️ Usage: /checkveri <user_id>")
+        user_id = int(args[1])
+        status = await db.get_verified(user_id)
+        await message.reply(f"✅ Verified on: {status['date']} at {status['time']}")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("chatscount"))
+async def total_chats_cmd(client, message: Message):
+    try:
+        count = await db.total_chat_count()
+        await message.reply(f"💬 Total groups in DB: {count}")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("dbsize"))
+async def db_size_cmd(client, message: Message):
+    try:
+        size = await db.get_db_size()
+        await message.reply(f"🗃️ DB Size: {round(size / 1024, 2)} KB")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("disablechat"))
+async def disable_chat_cmd(client, message: Message):
+    try:
+        args = message.text.split(maxsplit=2)
+        if len(args) < 2:
+            return await message.reply("⚠️ Usage: /disablechat <chat_id> [reason]")
+        chat_id = int(args[1])
+        reason = args[2] if len(args) > 2 else "No Reason"
+        await db.disable_chat(chat_id, reason)
+        await message.reply(f"🚫 Disabled chat {chat_id}. Reason: {reason}")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("delchat"))
+async def delete_chat_cmd(client, message: Message):
+    try:
+        args = message.text.split()
+        if len(args) != 2:
+            return await message.reply("⚠️ Usage: /delchat <chat_id>")
+        chat_id = int(args[1])
+        await db.delete_chat(chat_id)
+        await message.reply(f"🗑️ Deleted chat {chat_id} from DB.")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("saveinvite"))
+async def save_invite_cmd(client, message: Message):
+    try:
+        args = message.text.split(maxsplit=2)
+        if len(args) != 3:
+            return await message.reply("⚠️ Usage: /saveinvite <chat_id> <invite_link>")
+        chat_id = int(args[1])
+        link = args[2]
+        await db.save_chat_invite_link(chat_id, link)
+        await message.reply(f"🔗 Saved invite link for chat {chat_id}")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("invite"))
+async def get_invite_cmd(client, message: Message):
+    try:
+        args = message.text.split()
+        if len(args) != 2:
+            return await message.reply("⚠️ Usage: /invite <chat_id>")
+        chat_id = int(args[1])
+        link = await db.get_chat_invite_link(chat_id)
+        if link:
+            await message.reply(f"🔗 Invite link for chat {chat_id}: {link}")
+        else:
+            await message.reply("❌ No invite link found for this chat.")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
+        
+@Client.on_message(admin_only("settingz"))
+async def get_settings_cmd(client, message: Message):
+    try:
+        args = message.text.split()
+        if len(args) != 2:
+            return await message.reply("⚠️ Usage: /settings <chat_id>")
+        chat_id = int(args[1])
+        settings = await db.get_settings(chat_id)
+        await message.reply(f"⚙️ Settings for {chat_id}:\n{settings}")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        
         
