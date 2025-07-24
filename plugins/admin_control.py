@@ -558,4 +558,31 @@ async def check_veri(client, message: Message):
 
     except Exception as e:
         await message.reply(f"❌ Error checking verification data.\n\nDetails: `{e}`", quote=True)
-        
+
+
+@Client.on_message(filters.command("veridata") & filters.user(ADMINS))
+async def show_verified_users(client, message: Message):
+    users_cursor = await db.get_all_users()
+    verified_list = []
+
+    async for user in users_cursor:
+        status = user.get("verification_status", None)
+        if status and status.get("date") != "1999-12-31":
+            user_id = user["id"]
+            name = user.get("name", "Unknown")
+            date = status["date"]
+            time = status["time"]
+            verified_list.append(f"🆔 `{user_id}` - **{name}**\n📅 Date: `{date}` 🕒 Time: `{time}`\n")
+
+    if not verified_list:
+        return await message.reply("😔 No verified users found.")
+
+    result_text = "**✅ Verified Users List:**\n\n" + "\n".join(verified_list)
+
+    # Handle if result is too long
+    if len(result_text) > 4096:
+        with open("verified_users.txt", "w", encoding="utf-8") as f:
+            f.write("\n".join(verified_list))
+        await message.reply_document("verified_users.txt")
+    else:
+        await message.reply(result_text)
