@@ -808,7 +808,7 @@ async def get_settings_cmd(client, message: Message):
             return await message.reply("⚠️ Usage: /settings <chat_id>")
         chat_id = int(args[1])
         settings = await db.get_settings(chat_id)
-        await message.reply(f"⚙️ Settings for {chat_id}:\n{settings}")
+        await message.reply(f"⚙️ Settings forr {chat_id}:\n{settings}")
     except Exception as e:
         await message.reply(f"❌ Error: {e}")
         
