@@ -313,7 +313,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 await client.send_chat_action(query.from_user.id, enums.ChatAction.TYPING)
                 await client.send_message(
                     chat_id=query.from_user.id,
-                    text=script.FORCE_SUB_TEXT,
+                    text=script.VERI_MSG,
                     protect_content=(ident == 'checksubp'),
                     disable_web_page_preview=True,
                     parse_mode=enums.ParseMode.HTML,
