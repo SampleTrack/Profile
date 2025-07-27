@@ -387,8 +387,8 @@ Now enjoy the bot without any ads and access unlimited movies for the next 12 ho
 ✅ Instant File Access 🔓
 
 🎁 <b>To Upgrade:</b>
-Send ₹99 via UPI to: <code>yourupi@upi</code>
-Then send payment screenshot to @YourSupportUsername
+Send ₹99 via UPI to: <code>Soon</code>
+Then send payment screenshot to @MyselfPrincess
 
 We'll activate your premium within 5 minutes! 💖
 """
