@@ -201,6 +201,17 @@ async def start(client, message):
                 continue
             await asyncio.sleep(1) 
         return await sts.delete()
+
+    if message.text == "/start premium":
+        buttons = [
+            [InlineKeyboardButton("✅ Verify Premium", url="https://t.me/YourSupportUsername")],
+            [InlineKeyboardButton("💬 Contact Support", url="https://t.me/YourSupportUsername")]
+        ]
+        await message.reply_text(
+            text=script.PREMIUM_TXT,
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
+        return
         
     elif data.split("-", 1)[0] == "DSTORE":
         sts = await message.reply("PLEASE WAIT....")
