@@ -1,138 +1,162 @@
-class script(object):
-    START_TXT = """<b>Hᴇʟʟᴏ {},
-Mʏ Nᴀ0ᴍᴇ Is <a href=https://t.me/{}>{}</a>, I Cᴀɴ Pʀᴏᴠɪᴅᴇ Mᴏᴠɪᴇs, Jᴜsᴛ Aᴅᴅ Mᴇ Tᴏ Yᴏᴜʀ Gʀᴏᴜᴘ Aɴᴅ Eɴᴊᴏʏ 😍...</b>"""
+class Script(object):
+    START_TXT = """\
+<b>👋 Hello {},
 
-    HELP_TXT = """<b>Hᴇʏ {},
-Hᴇʀᴇ Is Tʜᴇ Hᴇʟᴘ Fᴏʀ Mʏ Cᴏᴍᴍᴀɴᴅs.</b>"""
+My Name Is <a href="https://t.me/{}">{}</a> 🎬
+I Can Provide Movies! Just Add Me To Your Group And Enjoy 😍...</b>"""
 
-    ABOUT_TXT = """<b>✯ Mʏ ɴᴀᴍᴇ: {}
-✯ Dᴇᴠᴇʟᴏᴩᴇʀ: <a herf=https://t.me/iPepkornUpdate>ɪPᴇᴘᴋᴏʀɴUᴘᴅᴀᴛᴇ</a>
-✯ Cᴏᴅᴇᴅ Oɴ: ᴩʏᴛʜᴏɴ/ᴩʏʀᴏɢʀᴀᴍ
-✯ Mʏ DᴀᴛᴀBᴀꜱᴇ: ᴍᴏɴɢᴏ-ᴅʙ
-✯ Mʏ Sᴇʀᴠᴇʀ: ᴀɴʏᴡʜᴇʀᴇ
-✯ Mʏ Vᴇʀꜱɪᴏɴ: ɪPᴇᴘᴋᴏʀɴAʟᴘʜᴀBᴏᴛ ᴠ4.5.0</b>"""
-   
-    SOURCE_TXT = """<b>NOTE:</b>
-- ꜱᴏᴜʀᴄᴇ ᴄᴏᴅᴇ ᴘʀɪᴠᴀᴛᴇ</b>"""
+    HELP_TXT = """\
+<b>🆘 Hey {},
 
-    FILE_TXT = """<b>➤ Hᴇʟᴘ Fᴏʀ Fɪʟᴇ Sᴛᴏʀᴇ</b>
+Here Is The Help For My Commands.</b>"""
 
-<i>Bʏ Usɪɴɢ Tʜɪs Mᴏᴅᴜʟᴇ Yᴏᴜ Cᴀɴ Sᴛᴏʀᴇ Fɪʟᴇs Iɴ Mʏ Dᴀᴛᴀʙᴀsᴇ Aɴᴅ I Wɪʟʟ Gɪᴠᴇ Yᴏᴜ A Pᴇʀᴍᴀɴᴇɴᴛ Lɪɴᴋ  Tᴏ Aᴄᴄᴇss Tʜᴇ Sᴀᴠᴇᴅ Fɪʟᴇs. Iғ Yᴏᴜ Wᴀɴᴛ Tᴏ Aᴅᴅ Fɪʟᴇs Fʀᴏᴍ A Pᴜʙʟɪᴄ Cʜᴀɴɴᴇʟ Sᴇɴᴅ Tʜᴇ Fɪʟᴇ Lɪɴᴋ Oɴʟʏ  Oʀ Yᴏᴜ Wᴀɴᴛ Tᴏ Aᴅᴅ Fɪʟᴇs Fʀᴏᴍ A  Pʀɪᴠᴀᴛᴇ Cʜᴀɴɴᴇʟ Yᴏᴜʀ Mᴜsᴛ Mᴀᴋᴇ Mᴇ Aᴅᴍɪɴ Oɴ Tʜᴇ Cʜᴀɴɴᴇʟ Tᴏ Aᴄᴄᴇss Fɪʟᴇs</i>
+    ABOUT_TXT = """\
+<b>✯ My Name: {}
+✯ Developer: <a href="https://t.me/iPepkornUpdate">ɪPᴇᴘᴋᴏʀɴUᴘᴅᴀᴛᴇ</a>
+✯ Coded On: Python / Pyrogram
+✯ My Database: MongoDB
+✯ My Server: Anywhere
+✯ My Version: iPepkornAlphaBot v4.5.0</b>"""
 
-<b>⪼ Cᴏᴍᴍᴀɴᴅ & Usᴀɢᴇ</b>
-➪ /link › Rᴇᴘʟʏ Tᴏ Aɴʏ Mᴇᴅɪᴀ Tᴏ Gᴇᴛ Tʜᴇ Lɪɴᴋ 
-➪ /batch › Tᴏ Cʀᴇᴀᴛᴇ Lɪɴᴋ Fᴏʀ Mᴜʟᴛɪᴘʟᴇ Mᴇᴅɪᴀ
+    SOURCE_TXT = """\
+<b>⚠️ NOTE:</b>
+- Source Code is Private 🔒</b>"""
 
-<b>⪼ EG:</b>
-</code>/batch https://t.me/iPepkornUpdate/1 https://t.me/iPepkornUpdate/10</code>"""
-  
-    FILTER_TXT = "Sᴇʟᴇᴄᴛ Wʜɪᴄʜ Oɴᴇ Yᴏᴜ Wᴀɴᴛ...✨"
-    
-    GLOBALFILTER_TXT = """<b>Hᴇʟᴘ Fᴏʀ Gʟᴏʙᴀʟ Fɪʟᴛᴇʀs</b>
+    FILE_TXT = """\
+<b>📂 Help For File Store</b>
 
-<i>Fɪʟᴛᴇʀ Is Tʜᴇ Fᴇᴀᴛᴜʀᴇ Wᴇʀᴇ Usᴇʀs Cᴀɴ Sᴇᴛ Aᴜᴛᴏᴍᴀᴛᴇᴅ Rᴇᴘʟɪᴇs Fᴏʀ A Pᴀʀᴛɪᴄᴜʟᴀʀ Kᴇʏᴡᴏʀᴅ Aɴᴅ Bᴏᴛ  Wɪʟʟ Rᴇsᴘᴏɴᴅ Wʜᴇɴᴇᴠᴇʀ A Kᴇʏᴡᴏʀᴅ Is Fᴏᴜɴᴅ Tʜᴇ Mᴇssᴀɢᴇ</i>
+<i>By Using This Module You Can Store Files In My Database And I Will Give You A Permanent Link To Access The Saved Files.
+If You Want To Add Files From A Public Channel, Send The File Link Only.
+If You Want To Add Files From A Private Channel, You Must Make Me Admin On The Channel To Access Files.</i>
 
-<b>Nᴏᴛᴇ:</b>
-Tʜɪs Mᴏᴅᴜʟᴇ Oɴʟʏ Wᴏʀᴋs Fᴏʀ Mʏ Aᴅᴍɪɴs
+<b>⪼ Commands & Usage</b>
+➪ /link › Reply To Any Media To Get The Link
+➪ /batch › To Create Links For Multiple Media
 
-<b>Cᴏᴍᴍᴀɴᴅs Aɴᴅ Usᴀɢᴇ:</b>
-• /gfilter - Tᴏ Aᴅᴅ Gʟᴏʙᴀʟ Fɪʟᴛᴇʀs
-• /gfilters - Tᴏ Vɪᴇᴡ Lɪsᴛ Oғ Aʟʟ Gʟᴏʙᴀʟ Fɪʟᴛᴇʀs
-• /delg - Tᴏ Dᴇʟᴇᴛᴇ A Sᴘᴇᴄɪғɪᴄ Gʟᴏʙᴀʟ Fɪʟᴛᴇʀ
-• /delallg - Tᴏ Dᴇʟᴇᴛᴇ Aʟʟ Gʟᴏʙᴀʟ Fɪʟᴛᴇʀꜱ
+<b>⪼ Example:</b>
+<code>/batch https://t.me/iPepkornUpdate/1 https://t.me/iPepkornUpdate/10</code>
+"""
 
-• /g_filter off Usᴇ Tʜɪs Cᴏᴍᴍᴏᴀɴᴅ + on/offғ Iɴ Yᴏᴜʀ Gʀᴏᴜᴘ Tᴏ Cᴏɴᴛʀᴏʟ Gʟᴏʙᴀʟ Fɪʟᴛᴇʀ Iɴ Yᴏᴜʀ Gʀᴏᴜᴘ"""
+    FILTER_TXT = "✨ Select Which One You Want... ✨"
 
-    MANUELFILTER_TXT = """<b>Hᴇʟᴘ Fᴏʀ Fɪʟᴛᴇʀs</b>
+    GLOBALFILTER_TXT = """\
+<b>🌍 Help For Global Filters</b>
 
-<i>Fɪʟᴛᴇʀ Is Tʜᴇ Fᴇᴀᴛᴜʀᴇ Wᴇʀᴇ Usᴇʀs Cᴀɴ Sᴇᴛ Aᴜᴛᴏᴍᴀᴛᴇᴅ Rᴇᴘʟɪᴇs Fᴏʀ A Pᴀʀᴛɪᴄᴜʟᴀʀ Kᴇʏᴡᴏʀᴅ Aɴᴅ Bᴏᴛ  Wɪʟʟ Rᴇsᴘᴏɴᴅ Wʜᴇɴᴇᴠᴇʀ A Kᴇʏᴡᴏʀᴅ Is Fᴏᴜɴᴅ Tʜᴇ Mᴇssᴀɢᴇ</i>
+<i>Filter is a feature where users can set automated replies for a particular keyword, and the bot will respond whenever the keyword is found in the message.</i>
 
-<b>Nᴏᴛᴇ:</b>
-𝟷. Tʜɪs Bᴏᴛ Sʜᴏᴜʟᴅ Hᴀᴠᴇ Aᴅᴍɪɴ Pʀɪᴠɪʟʟᴀɢᴇ.
-𝟸. Oɴʟʏ Aᴅᴍɪɴs Cᴀɴ Aᴅᴅ Fɪʟᴛᴇʀs Iɴ A Cʜᴀᴛ.
-𝟹. Aʟᴇʀᴛ Bᴜᴛᴛᴏɴs Hᴀᴠᴇ A Lɪᴍɪᴛ Oғ 𝟼𝟺 Cʜᴀʀᴀᴄᴛᴇʀs.
+<b>Note:</b>
+This module only works for my admins.
 
-<b>Cᴏᴍᴍᴀɴᴅs Aɴᴅ Usᴀɢᴇ:</b>
-• /filter - Aᴅᴅ A Fɪʟᴛᴇʀ Iɴ Cʜᴀᴛ
-• /filters - Lɪsᴛ Aʟʟ Tʜᴇ Fɪʟᴛᴇʀs Oғ A Cʜᴀᴛ
-• /del - Dᴇʟᴇᴛᴇ A Sᴘᴇᴄɪғɪᴄ Fɪʟᴛᴇʀ Iɴ Cʜᴀᴛ
-• /delall - Dᴇʟᴇᴛᴇ Tʜᴇ Wʜᴏʟᴇ Fɪʟᴛᴇʀs Iɴ A Cʜᴀᴛ (Cʜᴀᴛ Oᴡɴᴇʀ Oɴʟʏ)
+<b>Commands and Usage:</b>
+• /gfilter - To Add Global Filters
+• /gfilters - To View List Of All Global Filters
+• /delg - To Delete A Specific Global Filter
+• /delallg - To Delete All Global Filters
 
-• /g_filter off Usᴇ Tʜɪs Cᴏᴍᴍᴏᴀɴᴅ + on/offғ Iɴ Yᴏᴜʀ Gʀᴏᴜᴘ Tᴏ Cᴏɴᴛʀᴏʟ Gʟᴏʙᴀʟ Fɪʟᴛᴇʀ Iɴ Yᴏᴜʀ Gʀᴏᴜᴘ"""
+• Use <code>/g_filter off</code> + on/off in your group to control global filter in your group.
+"""
 
-    BUTTON_TXT = """<b>Hᴇʟᴘ Fᴏʀ Bᴜᴛᴛᴏɴs</b>
+    MANUELFILTER_TXT = """\
+<b>⚙️ Help For Filters</b>
 
-<i>Tʜɪs Bᴏᴛ Sᴜᴘᴘᴏʀᴛs Bᴏᴛʜ Uʀʟ Aɴᴅ Aʟᴇʀᴛ Iɴʟɪɴᴇ Bᴜᴛᴛᴏɴs.</i>
+<i>Filter is a feature where users can set automated replies for a particular keyword, and the bot will respond whenever the keyword is found in the message.</i>
 
-<b>Nᴏᴛᴇ:</b>
-𝟷. Tᴇʟᴇɢʀᴀᴍ Wɪʟʟ Nᴏᴛ Aʟʟᴏᴡs Yᴏᴜ Tᴏ Sᴇɴᴅ Bᴜᴛᴛᴏɴs Wɪᴛʜᴏᴜᴛ Aɴʏ Cᴏɴᴛᴇɴᴛ, Sᴏ Cᴏɴᴛᴇɴᴛ Is Mᴀɴᴅᴀᴛᴏʀʏ.
-𝟸. Tʜɪs Bᴏᴛ Sᴜᴘᴘᴏʀᴛs Bᴜᴛᴛᴏɴs Wɪᴛʜ Aɴʏ Tᴇʟᴇɢʀᴀᴍ Mᴇᴅɪᴀ Tʏᴘᴇ.
-𝟹. Bᴜᴛᴛᴏɴs Sʜᴏᴜʟᴅ Bᴇ Pʀᴏᴘᴇʀʟʏ Pᴀʀsᴇᴅ As Mᴀʀᴋᴅᴏᴡɴ Fᴏʀᴍᴀᴛ
+<b>Note:</b>
+1. This bot should have admin privileges.
+2. Only admins can add filters in a chat.
+3. Alert buttons have a limit of 64 characters.
 
-<b>Uʀʟ Bᴜᴛᴛᴏɴs:</b>
-[Bᴜᴛᴛᴏɴ Tᴇxᴛ](buttonurl:xxxxxxxxxxxx)
+<b>Commands And Usage:</b>
+• /filter - Add A Filter In Chat
+• /filters - List All The Filters Of A Chat
+• /del - Delete A Specific Filter In Chat
+• /delall - Delete The Whole Filters In A Chat (Chat Owner Only)
 
-<b>Aʟᴇʀᴛ Bᴜᴛᴛᴏɴs:</b>
-[Bᴜᴛᴛᴏɴ Tᴇxᴛ](buttonalert:Tʜɪs Is Aɴ Aʟᴇʀᴛ Mᴇssᴀɢᴇ)"""
+• Use <code>/g_filter off</code> + on/off in your group to control global filter in your group.
+"""
 
-    AUTOFILTER_TXT = """<b>Hᴇʟᴘ Fᴏʀ AᴜᴛᴏFɪʟᴛᴇʀ</b>
+    BUTTON_TXT = """\
+<b>🔘 Help For Buttons</b>
 
-<Ai>Aᴜᴛᴏ Fɪʟᴛᴇʀ Is Tʜᴇ Fᴇᴀᴛᴜʀᴇ Tᴏ Fɪʟᴛᴇʀ & Sᴀᴠᴇ Tʜᴇ Fɪʟᴇs Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ Fʀᴏᴍ Cᴜᴀɴɴᴇʟ Tᴏ Gʀᴏᴜᴘ. Yᴏᴜ Cᴀɴ Usᴇ Tʜᴇ Fᴏʟʟᴏᴡɪɴɢ Cᴏᴍᴍᴀɴᴅ Tᴏ ᴏɴ/ᴏғғ Tʜᴇ AᴜᴛᴏFɪʟᴛᴇʀ Iɴ Yᴏᴜʀ Gʀᴏᴜᴘ</i>
+<i>This bot supports both URL and alert inline buttons.</i>
 
-• /autofilter on - ᴀᴜᴛᴏғɪʟᴛᴇʀ ᴇɴᴀʙʟᴇ ɪɴ ʏᴏʀ ᴄʜᴀᴛ
-• /autofilter off - ᴀᴜᴛᴏғɪʟᴛᴇʀ ᴅɪsᴀʙʟᴇ ɪɴ ʏᴏᴜʀ ᴄʜᴀᴛ
+<b>Note:</b>
+1. Telegram will not allow you to send buttons without any content, so content is mandatory.
+2. This bot supports buttons with any Telegram media type.
+3. Buttons should be properly parsed as markdown format.
 
-<Ob>Oᴛʜᴇʀ Cᴏᴍᴍᴀɴᴅs:</b>
-• /set_template - Sᴇᴛ Iᴍᴅʙ Tᴇᴍᴘʟᴀᴛᴇ Fᴏʀ Yᴏᴜʀ Gʀᴏᴜᴘ 
-• /get_template - Gᴇᴛ Cᴜʀʀᴇɴᴛ Iᴍᴅʙ Tᴇᴍᴘʟᴀᴛᴇ Fᴏʀ Yᴏᴜʀ Gʀᴏᴜᴘ"""
+<b>URL Buttons:</b>
+[Button Text](buttonurl:xxxxxxxxxxxx)
 
-    CONNECTION_TXT = """<b>Hᴇʟᴘ Fᴏʀ Cᴏɴɴᴇᴄᴛɪᴏɴs</b>
+<b>Alert Buttons:</b>
+[Button Text](buttonalert:This Is An Alert Message)
+"""
 
-<i> Usᴇᴅ Tᴏ Cᴏɴɴᴇᴄᴛ Bᴏᴛ Tᴏ Pᴍ Fᴏʀ Mᴀɴᴀɢɪɴɢ Fɪʟᴛᴇʀs. Iᴛ Hᴇʟᴘs Tᴏ Aᴠᴏɪᴅ Sᴘᴀᴍᴍɪɴɢ Iɴ Gʀᴏᴜᴘs</i>
+    AUTOFILTER_TXT = """\
+<b>🤖 Help For AutoFilter</b>
 
-<b>Nᴏᴛᴇ:</b>
-• Oɴʟʏ Aᴅᴍɪɴs Cᴀɴ Aᴅᴅ A Cᴏɴɴᴇᴄᴛɪᴏɴ.
-• Sᴇɴᴅ /connect Fᴏʀ Cᴏɴɴᴇᴄᴛɪɴɢ Mᴇ Tᴏ Uʀ Pᴍ
+<i>AutoFilter automatically filters & saves files from channel to group. You can use the following commands to on/off the AutoFilter in your group.</i>
 
-<Cb>Cᴏᴍᴍᴀɴᴅs Aɴᴅ Usᴀɢᴇ:</b>
-• /connect - Cᴏɴɴᴇᴄᴛ A Pᴀʀᴛɪᴄᴜʟᴀʀ Cʜᴀᴛ Tᴏ Yᴏᴜʀ Pᴍ
-• /disconnect - Dɪsᴄᴏɴɴᴇᴄᴛ Fʀᴏᴍ A Cʜᴀᴛ
-• /connections - Lɪsᴛ Aʟʟ Yᴏᴜʀ Cᴏɴɴᴇᴄᴛɪᴏɴs"""
+• /autofilter on - Enable AutoFilter in your chat
+• /autofilter off - Disable AutoFilter in your chat
 
-    ADMIN_TXT = """<b>Hᴇʟᴩ Fᴏʀ Aᴅᴍɪɴꜱ</b>
-    
-<i>Tʜɪs Mᴏᴅᴜʟᴇ Oɴʟʏ Wᴏʀᴋs Fᴏʀ Mʏ Aᴅᴍɪɴs</i>
+<b>Other Commands:</b>
+• /set_template - Set IMDb Template For Your Group
+• /get_template - Get Current IMDb Template For Your Group
+"""
 
-<b>Cᴏᴍᴍᴀɴᴅ & Uꜱᴀɢᴇ</b>
-• /logs - Tᴏ Gᴇᴛ Tʜᴇ Rᴇᴄᴇɴᴛ Eʀʀᴏʀꜱ
-• /delete - Tᴏ Dᴇʟᴇᴛᴇ A Sᴘᴇᴄɪꜰɪᴄ Fɪʟᴇ Fʀᴏᴍ DB
-• /deleteall - Tᴏ Dᴇʟᴇᴛᴇ Aʟʟ Fɪʟᴇs Fʀᴏᴍ DB
-• /users - Tᴏ Gᴇᴛ Lɪꜱᴛ Oꜰ Mʏ Uꜱᴇʀꜱ Aɴᴅ Iᴅꜱ
-• /chats - Tᴏ Gᴇᴛ Lɪꜱᴛ Oꜰ Mʏ Cʜᴀᴛꜱ Aɴᴅ Iᴅꜱ
-• /channel - Tᴏ Gᴇᴛ Lɪꜱᴛ Oꜰ Tᴏᴛᴀʟ Cᴏɴɴᴇᴄᴛᴇᴅ Cʜᴀɴɴᴇʟꜱ
-• /broadcast - Tᴏ Bʀᴏᴀᴅᴄᴀꜱᴛ A Mᴇꜱꜱᴀɢᴇ Tᴏ Aʟʟ Uꜱᴇʀꜱ
-• /group_broadcast - Tᴏ Bʀᴏᴀᴅᴄᴀsᴛ A Mᴇssᴀɢᴇ Tᴏ Aʟʟ Cᴏɴɴᴇᴄᴛᴇᴅ Gʀᴏᴜᴘs
-• /leave  - Wɪᴛʜ Cʜᴀᴛ Iᴅ Tᴏ Lᴇᴀᴠᴇ Fʀᴏᴍ A Cʜᴀᴛ
-• /disable  - Wɪᴛʜ Cʜᴀᴛ Iᴅ Tᴏ Dɪꜱᴀʙʟᴇ A Cʜᴀᴛ
-• /invite - Wɪᴛʜ Cʜᴀᴛ Iᴅ Tᴏ Gᴇᴛ Tʜᴇ Iɴᴠɪᴛᴇ Lɪɴᴋ Oғ Aɴʏ Cʜᴀᴛ Wʜᴇʀᴇ Tʜᴇ Bᴏᴛ Is Aᴅᴍɪɴ
-• /ban_user  - Wɪᴛʜ Iᴅ Tᴏ Bᴀɴ A Uꜱᴇʀ
-• /unban_user  - Wɪᴛʜ Iᴅ Tᴏ Uɴʙᴀɴ A Uꜱᴇʀ
-• /restart - Tᴏ Rᴇsᴛᴀʀᴛ Tʜᴇ Bᴏᴛ
-• /clear_junk - Cʟᴇᴀʀ Aʟʟ Dᴇʟᴇᴛᴇ Aᴄᴄᴏᴜɴᴛ & Bʟᴏᴄᴋᴇᴅ Aᴄᴄᴏᴜɴᴛ Iɴ Dᴀᴛᴀʙᴀsᴇ
-• /clear_junk_group - Cʟᴇᴀʀ Aᴅᴅ Rᴇᴍᴏᴠᴇᴅ Gʀᴏᴜᴘ Oʀ Dᴇᴀᴄᴛɪᴠᴀᴛᴇᴅ Gʀᴏᴜᴘs Oɴ Dʙ"""
+    CONNECTION_TXT = """\
+<b>🔗 Help For Connections</b>
 
+<i>Used To Connect Bot To PM For Managing Filters. It Helps To Avoid Spamming In Groups.</i>
 
-    STATUS_TXT = """<b>◉ ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ: <code>{}</code>
-◉ ᴛᴏᴛᴀʟ ᴜꜱᴇʀꜱ: <code>{}</code>  
-◉ ᴛᴏᴛᴀʟ ᴄʜᴀᴛꜱ: <code>{}</code>
-◉ ᴜꜱᴇᴅ ᴅʙ ꜱɪᴢᴇ: <code>{}</code>
-◉ ꜰᴇᴇᴇ ᴅʙ ꜱɪᴢᴇ: <code>{}</code></b>"""
+<b>Note:</b>
+• Only admins can add a connection.
+• Send /connect to connect me to your PM.
 
-    LOG_TEXT_G = """#NewGroup 😎
+<b>Commands And Usage:</b>
+• /connect - Connect A Particular Chat To Your PM
+• /disconnect - Disconnect From A Chat
+• /connections - List All Your Connections
+"""
+
+    ADMIN_TXT = """\
+<b>🛠 Help For Admins</b>
+
+<i>This module only works for my admins.</i>
+
+<b>Commands & Usage:</b>
+• /logs - To Get The Recent Errors
+• /delete - To Delete A Specific File From DB
+• /deleteall - To Delete All Files From DB
+• /users - To Get List Of My Users And IDs
+• /chats - To Get List Of My Chats And IDs
+• /channel - To Get List Of Total Connected Channels
+• /broadcast - To Broadcast A Message To All Users
+• /group_broadcast - To Broadcast A Message To All Connected Groups
+• /leave - With Chat ID To Leave From A Chat
+• /disable - With Chat ID To Disable A Chat
+• /invite - With Chat ID To Get The Invite Link Of Any Chat Where The Bot Is Admin
+• /ban_user - With ID To Ban A User
+• /unban_user - With ID To Unban A User
+• /restart - To Restart The Bot
+• /clear_junk - Clear All Deleted & Blocked Accounts In Database
+• /clear_junk_group - Clear Added Removed Or Deactivated Groups On DB
+"""
+
+    STATUS_TXT = """\
+<b>◉ Total Files: <code>{}</code>
+◉ Total Users: <code>{}</code>
+◉ Total Chats: <code>{}</code>
+◉ Used DB Size: <code>{}</code>
+◉ Free DB Size: <code>{}</code></b>"""
+
+    LOG_TEXT_G = """\
+#NewGroup 😎
 
 Group: {a}
 Group ID: <code>{b}</code>
-Group UN: @{c}
+Group Username: @{c}
 
 Total Members: <code>{d}</code>
 Total Groups: <code>{e}</code>
@@ -147,9 +171,10 @@ By {j}
 #{k}
 #Chats_{k}
 """
-    
-    LOG_TEXT_P = """NewUsers 😀
-    
+
+    LOG_TEXT_P = """\
+#NewUser 😀
+
 ID: <code>{a}</code>
 Name: {b}
 Username: @{c}
@@ -161,21 +186,23 @@ Date: <code>{f}</code>
 Time: <code>{g}</code>
 
 By {h}
+
 #{i}
 #Users_{i}
 """
-    
-    NEW_MEMBER = """#NewMember 😀
+
+    NEW_MEMBER = """\
+#NewMember 😀
 
 Group = {a}
 Group ID = <code>{b}</code>
-Group UN = @{c}
-Total Member = <code>{d}</code>
+Group Username = @{c}
+Total Members = <code>{d}</code>
 Invite = {e}
-           
+
 Member = {f}
 Member ID = <code>{g}</code>
-Member UN = @{h}
+Member Username = @{h}
 
 Date = <code>{i}</code>
 Time = <code>{j}</code>
@@ -184,17 +211,18 @@ Time = <code>{j}</code>
 #NewMem_{k}
 """
 
-    LEFT_MEMBER = """#LeftMember 😔
+    LEFT_MEMBER = """\
+#LeftMember 😔
 
 Group = {a}
 Group ID = <code>{b}</code>
-Group UN = @{c}
-Total Member = <code>{d}</code>
+Group Username = @{c}
+Total Members = <code>{d}</code>
 Invite = {e}
-           
+
 Member = {f}
 Member ID = <code>{g}</code>
-Member UN = @{h}
+Member Username = @{h}
 
 Date = <code>{i}</code>
 Time = <code>{j}</code>
@@ -203,7 +231,8 @@ Time = <code>{j}</code>
 #LeftMem_{k}
 """
 
-    REPORT_TXT = """#Daily_Report
+    REPORT_TXT = """\
+#Daily_Report
 
 Date = {a}
 Time = {c}
@@ -217,125 +246,145 @@ Yesterday
 {b} Chats = <code>{g}</code>
 
 #{h}
-#Report_{h}"""
-  
-    GROUPMANAGER_TXT = """<b>Hᴇʟᴩ Fᴏʀ GʀᴏᴜᴩMᴀɴᴀɢᴇʀ</b>
-
-<i>Tʜɪꜱ Iꜱ Hᴇʟᴩ Oꜰ Yᴏᴜʀ Gʀᴏᴜᴩ Mᴀɴᴀɢɪɴɢ. Tʜɪꜱ Wɪʟʟ Wᴏʀᴋ Oɴʟʏ Fᴏʀ Gʀᴏᴜᴩ aᴅᴍɪɴꜱ</i>
-
-<b>Cᴏᴍᴍᴀɴᴅ & Uꜱᴀɢᴇ:</b>
-• /inkick - Cᴏᴍᴍᴀɴᴅ Wɪᴛʜ Rᴇǫᴜɪʀᴇᴅ Aʀɢᴜᴍᴇɴᴛs Aɴᴅ I Wɪʟʟ Kɪᴄᴋ Mᴇᴍʙᴇʀs Fʀᴏᴍ Gʀᴏᴜᴘ.
-• /instatus - Tᴏ Cʜᴇᴄᴋ Cᴜʀʀᴇɴᴛ Sᴛᴀᴛᴜs Oғ Cʜᴀᴛ Mᴇᴍʙᴇʀ Fʀᴏᴍ Gʀᴏᴜᴘ.
-• /dkick - Tᴏ Kɪᴄᴋ Dᴇʟᴇᴛᴇᴅ Aᴄᴄᴏᴜɴᴛs
-• /ban - To Bᴀɴ A Uꜱᴇʀ Fᴏʀᴍ Tʜᴇ Gʀᴏᴜᴩ
-• /unban - Uɴʙᴀɴ Tʜᴇ Bᴀɴɴᴇᴅ Uꜱᴇʀ
-• /tban - Tᴇᴍᴩᴏʀᴀʀʏ Bᴀɴ A Uꜱᴇʀ
-• /mute - To Mᴜᴛᴇ A Uꜱᴇʀ
-• /unmute - To Uɴᴍᴜᴛᴇ Tʜᴇ Mᴜᴛᴇᴅ Uꜱᴇʀ
-• /tmute - Wɪᴛʜ Vᴀʟᴜᴇ To Mᴜᴛᴇ Uᴩ To Pᴀʀᴛɪᴄᴜʟᴀʀ Tɪᴍᴇ Eɢ: <code>/tmute 2h</code> To Mᴜᴛᴇ 2Hᴏᴜʀ Vᴀʟᴜᴇꜱ Iꜱ (m/h/d)
-• /pin - Tᴏ Pɪɴ A Mᴇꜱꜱᴀɢᴇ Oɴ Yᴏᴜʀ Cʜᴀᴛ
-• /unpin - Tᴏ Uɴᴩɪɴ Tʜᴇ Mᴇꜱꜱᴀɢᴇ Oɴ Yᴏᴜʀ Cʜᴀᴛ
-• /purge - Dᴇʟᴇᴛᴇ Aʟʟ Mᴇssᴀɢᴇs Fʀᴏᴍ Tʜᴇ Rᴇᴘʟɪᴇᴅ Tᴏ Mᴇssᴀɢᴇ, Tᴏ Tʜᴇ Cᴜʀʀᴇɴᴛ Mᴇssᴀɢᴇ """
-
-    EXTRAMOD_TXT = """<b>Hᴇʟᴩ Fᴏʀ Exᴛʀᴀ Mᴏᴅᴜʟᴇ</b>
-
-<i>Jᴜꜱᴛ Sᴇɴᴅ Aɴʏ Iᴍᴀɢᴇ Tᴏ Eᴅɪᴛ Iᴍᴀɢᴇ ✨</i>
-
-<b>Cᴏᴍᴍᴀɴᴅꜱ & Uꜱᴀɢᴇ:</b>
-• /id - Gᴇᴛ Iᴅ Oғ A Sᴘᴇᴄɪғᴇᴅ Usᴇʀ
-• /info  - Gᴇᴛ Iɴғᴏʀᴍᴀᴛɪᴏɴ Aʙᴏᴜᴛ A Usᴇʀ
-• /imdb  - Gᴇᴛ Tʜᴇ Fɪʟᴍ Iɴғᴏʀᴍᴀᴛɪᴏɴ Fʀᴏᴍ Iᴍᴅʙ Sᴏᴜʀᴄᴇ
-• /paste [ᴛᴇxᴛ] - Pᴀsᴛᴇ Tʜᴇ Gɪᴠᴇɴ Tᴇxᴛ Oɴ Pᴀsᴛʏ
-• /tts [ᴛᴇxᴛ] - Cᴏɴᴠᴇʀᴛ Tᴇxᴛ Tᴏ Sᴘᴇᴇᴄʜ
-• /telegraph - Sᴇɴᴅ Mᴇ Tʜɪs Cᴏᴍᴍᴀɴᴅ Rᴇᴘʟʏ Wɪᴛʜ Pɪᴄᴛᴜʀᴇ Oʀ Vɪᴅᴇ Uɴᴅᴇʀ (𝟻ᴍʙ)
-• /json - Rᴇᴩʟʏ Wɪᴛʜ Aɴʏ Mᴇꜱꜱᴀɢᴇ Tᴏ Gᴇᴛ Mᴇꜱꜱᴀɢᴇ Iɴꜰᴏ (ᴜꜱᴇꜰᴜʟʟ ꜰᴏʀ ɢʀᴏᴜᴩ)
-• /written - Rᴇᴩʟʏ Wɪᴛʜ Tᴇxᴛ Tᴏ Gᴇᴛ Fɪʟᴇ (ᴜꜱᴇꜰᴜʟʟ ꜰᴏʀ ᴄᴏᴅᴇʀꜱ)
-• /carbon - Rᴇᴘʟʏ Wɪᴛʜ Tᴇxᴛ Tᴏ Gᴇᴛ Cᴀʀʙᴏɴᴀᴛᴇᴅ Iᴍᴀɢᴇ
-• /font [ᴛᴇxᴛ] - Tᴏ Cʜᴀɴɢᴇ Yᴏᴜʀ Tᴇxᴛ Fᴏɴᴛs Tᴏ Fᴀɴᴄʏ Fᴏɴᴛ
-• /share - Rᴇᴘʟʏ Wɪᴛʜ Tᴇxᴛ Tᴏ Gᴇᴛ Tᴇxᴛ Sʜᴀʀᴀʙʟᴇ Lɪɴᴋ
-• /song [ɴᴀᴍᴇ] - Tᴏ Sᴇᴀʀᴄʜ Tʜᴇ Sᴏɴɢ Iɴ YᴏᴜTᴜʙᴇ
-• /video [ʟɪɴᴋ] - Tᴏ Dᴏᴡɴʟᴏᴀᴅ Tʜᴇ YᴏᴜTᴜʙᴇ Vɪᴅᴇᴏ"""    
-    
-    CREATOR_REQUIRED = "❗<b>Yᴏᴜ Hᴀᴠᴇ To Bᴇ Tʜᴇ Gʀᴏᴜᴩ Cʀᴇᴀᴛᴏʀ Tᴏ Dᴏ Tʜᴀᴛ</b>"
-      
-    INPUT_REQUIRED = "❗ **Aʀɢᴜᴍᴇɴ Rqᴜɪʀᴇᴅ**"
-      
-    KICKED = "✔️ Sᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ Kɪᴄᴋᴇᴅ {} Mᴇᴍʙᴇʀꜱ Acᴄᴏʀᴅɪɴɢ To Tʜᴇ Aʀɢᴜᴍᴇɴᴛꜱ Prᴏᴠɪᴅᴇᴅ"
-      
-    START_KICK = "Rᴇᴍᴏᴠɪɴɢ Iɴᴀᴄᴛɪᴠᴇ Mᴇᴍʙᴇʀs Tʜɪs Mᴀʏ Tᴀᴋᴇ A Wʜɪʟᴇ"
-      
-    ADMIN_REQUIRED = "❗<b>Iᴀᴍ Nᴏᴛ Aᴅᴍɪɴ Iɴ Tʜɪꜱ Cʜᴀᴛ Sᴏ Pʟᴇᴀꜱᴇ Aᴅᴅ Mᴇ Aɢᴀɪɴ Wɪᴛʜ Aʟʟ Pᴅᴍɪɴ Pᴇʀᴍɪꜱꜱɪᴏɴ</b>"
-      
-    DKICK = "✔️ Kɪᴄᴋᴇᴅ {} Dᴇʟᴇᴛᴇᴅ Aᴄᴄᴏᴜɴᴛꜱ Sᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ"
-      
-    FETCHING_INFO = "<b>Wᴀɪᴛ I Wɪʟʟ Tᴀᴋᴇ Tʜᴇ Aʟʟ Iɴꜰᴏ</b>"
-   
-    SERVER_STATS = """Sᴇʀᴠᴇʀ Sᴛᴀᴛꜱ:
- 
-Uᴩᴛɪᴍᴇ: {}
-CPU Uꜱᴀɢᴇ: {}%
-RAM Uꜱᴀɢᴇ: {}%
-Tᴏᴛᴀʟ Dɪꜱᴋ: {}
-Uꜱᴇᴅ Dɪꜱᴋ: {} ({}%)
-Fʀᴇᴇ Dɪꜱᴋ: {}"""
-    
-    BUTTON_LOCK_TEXT = "Hᴇʏ {query}\nTʜɪꜱ Iꜱ Nᴏᴛ Fᴏʀ Yᴏᴜ. Sᴇᴀʀᴄʜ Yᴏᴜʀ Sᴇʟꜰ"
-   
-    FORCE_SUB_TEXT = "Sᴏʀʀʏ Bʀᴏ Yᴏᴜʀ Nᴏᴛ Jᴏɪɴᴇᴅ Mʏ Cʜᴀɴɴᴇʟ Sᴏ Pʟᴇᴀsᴇ Cʟɪᴄᴋ Jᴏɪɴ Bᴜᴛᴛᴏɴ Tᴏ Jᴏɪɴ Mʏ Cʜᴀɴɴᴇʟ Aɴᴅ Tʀʏ Aɢᴀɪɴ"
-   
-    WELCOM_TEXT = """Hᴇʏ {user} 💞
-
-Wᴇʟᴄᴏᴍᴇ ᴛᴏ {chat}.
-
-ꜱʜᴀʀᴇ & ꜱᴜᴩᴩᴏʀᴛ, ʀᴇqᴜᴇꜱᴛ ʏᴏᴜ ᴡᴀɴᴛᴇᴅ ᴍᴏᴠɪᴇꜱ"""
-  
-    IMDB_TEMPLATE = """<b>Query: {query}</b>
-
-🏷 Title: <a href={url}>{title}</a>
-🎭 Genres: {genres}
-📆 Year: <a href={url}/releaseinfo>{year}</a>
-🌟 Rating: <a href={url}/ratings>{rating}</a>/10
+#Report_{h}
 """
-    FILE_MSG = """
-<b>Hai 👋 {} </b>😍
+
+    GROUPMANAGER_TXT = """\
+<b>🛡 Help For Group Manager</b>
+
+<i>This is help for managing your group. This will work only for group admins.</i>
+
+<b>Commands & Usage:</b>
+• /inkick - Kick members with required arguments.
+• /instatus - Check current status of chat members.
+• /dkick - Kick deleted accounts.
+• /ban - To ban a user from the group.
+• /unban - To unban a banned user.
+• /tban - Temporarily ban a user.
+• /mute - To mute a user.
+• /unmute - To unmute the muted user.
+• /tmute - Mute up to a particular time (e.g., <code>/tmute 2h</code>). Valid values: m/h/d.
+• /pin - To pin a message in your chat.
+• /unpin - To unpin message in your chat.
+• /purge - Delete all messages from the replied message to the current message.
+"""
+
+    EXTRAMOD_TXT = """\
+<b>✨ Help For Extra Module</b>
+
+<i>Just send any image to edit the image ✨</i>
+
+<b>Commands & Usage:</b>
+• /id - Get ID of a specified user
+• /info - Get information about a user
+• /imdb - Get film info from IMDB source
+• /paste [text] - Paste the given text on Pasty
+• /tts [text] - Convert text to speech
+• /telegraph - Send this command reply with picture or video under 5MB
+• /json - Reply with any message to get message info (useful for groups)
+• /written - Reply with text to get file (useful for coders)
+• /carbon - Reply with text to get carbonated image
+• /font [text] - Change your text fonts to fancy fonts
+• /share - Reply with text to get text shareable link
+• /song [name] - Search the song on YouTube
+• /video [link] - Download the YouTube video
+"""
+
+    CREATOR_REQUIRED = "❗ <b>You Have To Be The Group Creator To Do That</b>"
+
+    INPUT_REQUIRED = "❗ **Argument Required**"
+
+    KICKED = "✔️ Successfully Kicked {} Members According To The Arguments Provided"
+
+    START_KICK = "Removing inactive members... This may take a while."
+
+    ADMIN_REQUIRED = "❗ <b>I am not admin in this chat, please add me again with all admin permissions.</b>"
+
+    DKICK = "✔️ Kicked {} Deleted Accounts Successfully"
+
+    FETCHING_INFO = "<b>⏳ Please wait, I will fetch all info...</b>"
+
+    SERVER_STATS = """\
+Server Stats:
+
+Uptime: {}
+CPU Usage: {}%
+RAM Usage: {}%
+Total Disk: {}
+Used Disk: {} ({}%)
+Free Disk: {}
+"""
+
+    BUTTON_LOCK_TEXT = "Hey {query}\nThis is not for you. Please search yourself."
+
+    FORCE_SUB_TEXT = "Sorry bro, you have not joined my channel yet. Please click the join button to join my channel and try again."
+
+    WELCOME_TEXT = """\
+👋 Hey {user} 💞
+
+Welcome to {chat}!
+
+Share & support, request the movies you want 🍿
+"""
+
+    IMDB_TEMPLATE = """\
+<b>🔎 Query: {query}</b>
+
+🏷 Title: <a href="{url}">{title}</a>
+🎭 Genres: {genres}
+📆 Year: <a href="{url}/releaseinfo">{year}</a>
+🌟 Rating: <a href="{url}/ratings">{rating}</a>/10
+"""
+
+    FILE_MSG = """\
+<b>Hai 👋 {username}</b> 😍
 
 <b>📫 Your File is Ready</b>
 
-<b>📂 Fɪʟᴇ Nᴀᴍᴇ</b> : <code>{}</code>
+<b>📂 File Name:</b> <code>{filename}</code>
+<b>⚙️ File Size:</b> <b>{filesize}</b>
+"""
 
-<b>⚙️ Fɪʟᴇ Sɪᴢᴇ</b> : <b>{}</b>"""
-    CHANNEL_CAP = """
-<b>Hai 👋 {}</b> 😍
+    CHANNEL_CAP = """\
+<b>Hai 👋 {username}</b> 😍
 
-<code>{}</code>
+<code>{file_info}</code>
 
-<b>Dᴜᴇ ᴛᴏ ᴄᴏᴘʏʀɪɢʜᴛ ᴛʜᴇ ғɪʟᴇ ᴡɪʟʟ ʙᴇ ᴅᴇʟᴇᴛᴇᴅ ғʀᴏᴍ ʜᴇʀᴇ ɪɴ 10 ᴍɪɴᴜᴛᴇs sᴏ ᴅᴏᴡɴʟᴏᴀᴅ ᴀғᴛᴇʀ ᴍᴏᴠɪɴɢ ғʀᴏᴍ ʜᴇʀᴇ ᴛᴏ sᴏᴍᴇᴡʜᴇʀᴇ ᴇʟsᴇ!</b>
+<b>⚠️ Due to copyright, the file will be deleted from here in 10 minutes. Please download after moving from here to somewhere else!</b>
 
-<b>© Powered by {}</b>"""
-    
-    VERIFY_MSG = """
-Hey {a}💕 
+<b>© Powered by {bot_name}</b>
+"""
 
-Temporary Token has been expired, Kindly generate Temp Token to start using bots Again. And Get access of unlimited Movies For Next 12 Hours.
+    VERIFY_MSG = """\
+Hey {username} 💕
 
-Validity :- 12 hours"""
-    VERIFY_SUC = """
-Congratulations {a}! Ads Token Refreshed Successfully! Now Enjoy Bot Without any Ads and Access Unlimited Movies For Next 12 Hours.
+Temporary Token has expired! Kindly generate a new temp token to start using the bot again and get access to unlimited movies for the next 12 hours.
 
-It Will Expire After 12 hours."""
-    
+⏰ Validity: 12 hours
+"""
+
+    VERIFY_SUC = """\
+🎉 Congratulations {username}! Ads Token refreshed successfully!
+
+Now enjoy the bot without any ads and access unlimited movies for the next 12 hours.
+
+⏳ It will expire after 12 hours.
+"""
+
     VERI_MSG = """
 🚫 You are not verified! Please verify your account to access unlimited movies for the next 12 hours. 🎬
 
 📋 Copy the link below and paste it into your Chrome browser. Complete the required task to enjoy 12 hours of uninterrupted and ad-free access! ✨🍿
 """
 
-    RESTART_TXT = """#Restarted
+    RESTART_TXT = """\
+🔄 #Restarted
 
-🔄 Bot Restarted!
-📅 Date: <code>{a}</code>
-⏰ Time: <code>{b}</code>
+Bot Restarted!
+📅 Date: <code>{date}</code>
+⏰ Time: <code>{time}</code>
 🌐 Timezone: <code>Asia/Kolkata</code>
 
-#{c}
-#Restart_{c}"""
+#{bot_name}
+#Restart_{bot_name}
+"""
