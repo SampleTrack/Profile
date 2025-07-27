@@ -324,8 +324,12 @@ Congratulations {a}! Ads Token Refreshed Successfully! Now Enjoy Bot Without any
 
 It Will Expire After 12 hours."""
     
-    VERI_MSG = """You are not verified! Please verify to access unlimited movies for the next 12 hours."""
-    
+    VERI_MSG = """
+🚫 You are not verified! Please verify your account to access unlimited movies for the next 12 hours. 🎬
+
+📋 Copy the link below and paste it into your Chrome browser. Complete the required task to enjoy 12 hours of uninterrupted and ad-free access! ✨🍿
+"""
+
     RESTART_TXT = """#Restarted
 
 🔄 Bot Restarted!
