@@ -22,7 +22,7 @@ from database.users_chats_db import db
 
 # Configuration
 from info import ADMINS, AUTH_CHANNEL, AUTH_USERS, CUSTOM_FILE_CAPTION, AUTH_GROUPS, P_TTI_SHOW_OFF, PICS, IMDB, PM_IMDB, SINGLE_BUTTON, PROTECT_CONTENT, \
-    SPELL_CHECK_REPLY, UPDATE_CHANNEL, FILE_FORWARD, FILE_CHANNEL, IMDB_TEMPLATE, IMDB_DELET_TIME, START_MESSAGE, PMFILTER, G_FILTER, BUTTON_LOCK, BUTTON_LOCK_TEXT, SHORT_URL, SHORT_API, IS_VERIFY, HOW_TO_VERIFY, GRP_LNK, CHNL_LNK
+    SPELL_CHECK_REPLY, UPTIME, UPDATE_CHANNEL, FILE_FORWARD, FILE_CHANNEL, IMDB_TEMPLATE, IMDB_DELET_TIME, START_MESSAGE, PMFILTER, G_FILTER, BUTTON_LOCK, BUTTON_LOCK_TEXT, SHORT_URL, SHORT_API, IS_VERIFY, HOW_TO_VERIFY, GRP_LNK, CHNL_LNK
 
 
 logger = logging.getLogger(__name__)
@@ -435,7 +435,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             return await query.answer("Sᴏʀʀʏ Tʜɪs Mᴇɴᴜ Oɴʟʏ Fᴏʀ Mʏ Aᴅᴍɪɴs ⚒️", show_alert=True)
         await query.message.edit("Pʀᴏᴄᴇꜱꜱɪɴɢ Wᴀɪᴛ Fᴏʀ 15 ꜱᴇᴄ...")
         total, used, free = shutil.disk_usage(".")
-        uptime = temp.UPTIME
+        uptime = UPTIME
         stats = script.SERVER_STATS.format(get_time(time.time() - uptime), psutil.cpu_percent(), psutil.virtual_memory().percent, humanbytes(total), humanbytes(used), psutil.disk_usage('/').percent, humanbytes(free))            
         stats_pic = await make_carbon(stats, True)
         await query.edit_message_media(InputMediaPhoto(stats_pic, script.ADMIN_TXT, enums.ParseMode.HTML), reply_markup=InlineKeyboardMarkup(buttons))
