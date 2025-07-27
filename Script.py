@@ -16,7 +16,7 @@ Here Is The Help For My Commands.</b>"""
 ✯ Coded On: Python / Pyrogram
 ✯ My Database: MongoDB
 ✯ My Server: Anywhere
-✯ My Version: iPepkornAlphaBot v4.5.0</b>"""
+✯ My Version: iPepkornAlphaBot v10.0.0</b>"""
 
     SOURCE_TXT = """\
 <b>⚠️ NOTE:</b>
