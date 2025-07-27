@@ -91,6 +91,7 @@ IMDB = is_enabled(environ.get('IMDB', "False"), False)
 SPELL_CHECK_REPLY = is_enabled(environ.get("SPELL_CHECK_REPLY", "True"), True)
 MELCOW_NEW_USERS = is_enabled(environ.get('MELCOW_NEW_USERS', "True"), True)
 IMDB_TEMPLATE = environ.get("IMDB_TEMPLATE", script.IMDB_TEMPLATE)
+PREMIUM_MODE = is_enabled((environ.get('PREMIUM_MODE', 'True')), True)
 
 # Others
 PORT = environ.get("PORT", "8080")
