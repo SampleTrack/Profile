@@ -381,10 +381,10 @@ Now enjoy the bot without any ads and access unlimited movies for the next 12 ho
 🔄 #Restarted
 
 Bot Restarted!
-📅 Date: <code>{date}</code>
-⏰ Time: <code>{time}</code>
+📅 Date: <code>{a}</code>
+⏰ Time: <code>{b}</code>
 🌐 Timezone: <code>Asia/Kolkata</code>
 
-#{bot_name}
-#Restart_{bot_name}
+#{c}
+#Restart_{c}
 """
