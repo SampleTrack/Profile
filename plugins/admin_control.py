@@ -833,7 +833,7 @@ async def list_all_commands(client, message):
         for cmd in command_lines:
             commands_summary += f" • {cmd}\n"
     if commands_summary:
-        await message.reply(commands_summary, parse_mode="html")
+        await message.reply(commands_summary)
     else:
         await message.reply("No commands found in the project.")
 
