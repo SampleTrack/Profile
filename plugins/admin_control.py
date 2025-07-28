@@ -31,9 +31,6 @@ logger.setLevel(logging.ERROR)
 USE_12_HOUR_FORMAT = True             # Switch 12/24 hour format ON/OFF here
 
 
-
-
-
 def extract_commands_from_file(file_path):
     commands = []
     with open(file_path, "r", encoding="utf-8") as f:
@@ -55,7 +52,7 @@ def list_commands_in_project(directory):
                     all_commands[file_path] = commands
     return all_commands
 
-    
+
 @Client.on_message(filters.new_chat_members & filters.group)
 async def save_group(bot, message):
     new_members = [member.id for member in message.new_chat_members]
@@ -837,8 +834,6 @@ async def get_settings_cmd(client, message: Message):
         await message.reply(f"❌ Error: {e}")
         
         
-
-
 @Client.on_message(filters.command("listallcommands") & filters.user(ADMINS))
 async def list_all_commands(client, message):
     commands_dict = list_commands_in_project(".")
@@ -851,7 +846,8 @@ async def list_all_commands(client, message):
 
     if text:
         file = io.BytesIO(text.encode("utf-8"))
-        file.name = "all_commands.txt"
-        await message.reply_document(document=InputFile(file), caption="📄 All Bot Commands List")
+        file.name = "all_bot_commands.txt"
+        await message.reply_document(document=file, caption="📄 Here's the list of all bot commands!")
     else:
         await message.reply("No commands found in the project.")
+        
