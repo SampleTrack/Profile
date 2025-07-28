@@ -19,7 +19,6 @@ import io
 import os
 import io
 from pyrogram import Client, filters
-from pyrogram.types import InputFile
 from info import ADMINS
 
 
