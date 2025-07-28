@@ -22,7 +22,27 @@ logger.setLevel(logging.ERROR)
 # Configurations
 USE_12_HOUR_FORMAT = True             # Switch 12/24 hour format ON/OFF here
 
+def extract_commands_from_file(file_path):
+    commands = []
+    with open(file_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+        for line in lines:
+            # Looks for typical command patterns in Pyrogram-based bots
+            if "filters.command" in line:
+                commands.append(line.strip())
+    return commands
 
+def list_commands_in_project(directory):
+    all_commands = {}
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".py"):
+                file_path = os.path.join(root, file)
+                commands = extract_commands_from_file(file_path)
+                if commands:
+                    all_commands[file_path] = commands
+    return all_commands
+    
 @Client.on_message(filters.new_chat_members & filters.group)
 async def save_group(bot, message):
     new_members = [member.id for member in message.new_chat_members]
@@ -804,3 +824,37 @@ async def get_settings_cmd(client, message: Message):
         await message.reply(f"❌ Error: {e}")
         
         
+def extract_commands_from_file(file_path):
+    commands = []
+    with open(file_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+        for line in lines:
+            # Looks for typical command patterns in Pyrogram-based bots
+            if "filters.command" in line:
+                commands.append(line.strip())
+    return commands
+
+def list_commands_in_project(directory):
+    all_commands = {}
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".py"):
+                file_path = os.path.join(root, file)
+                commands = extract_commands_from_file(file_path)
+                if commands:
+                    all_commands[file_path] = commands
+    return all_commands
+
+@bot.on_message(filters.command("listallcommands") & filters.user(ADMINS))
+async def list_all_commands(client, message):
+    commands_summary = ""
+    commands_dict = list_commands_in_project(".")
+    for filename, command_lines in commands_dict.items():
+        commands_summary += f"\n<b>{filename}:</b>\n"
+        for cmd in command_lines:
+            commands_summary += f" • {cmd}\n"
+    if commands_summary:
+        await message.reply(commands_summary, parse_mode="html")
+    else:
+        await message.reply("No commands found in the project.")
+
