@@ -824,28 +824,7 @@ async def get_settings_cmd(client, message: Message):
         await message.reply(f"❌ Error: {e}")
         
         
-def extract_commands_from_file(file_path):
-    commands = []
-    with open(file_path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-        for line in lines:
-            # Looks for typical command patterns in Pyrogram-based bots
-            if "filters.command" in line:
-                commands.append(line.strip())
-    return commands
-
-def list_commands_in_project(directory):
-    all_commands = {}
-    for root, dirs, files in os.walk(directory):
-        for file in files:
-            if file.endswith(".py"):
-                file_path = os.path.join(root, file)
-                commands = extract_commands_from_file(file_path)
-                if commands:
-                    all_commands[file_path] = commands
-    return all_commands
-
-@bot.on_message(filters.command("listallcommands") & filters.user(ADMINS))
+@Client.on_message(filters.command("listallcommands") & filters.user(ADMINS))
 async def list_all_commands(client, message):
     commands_summary = ""
     commands_dict = list_commands_in_project(".")
