@@ -14,7 +14,6 @@ import pytz
 from Script import script
 from collections import defaultdictì
 import logging, re, asyncio, time, shutil, psutil, os, sys
-  pyrogram.types import InputFile
 import io
 import os
 import io
