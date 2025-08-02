@@ -872,29 +872,48 @@ async def get_settings_cmd(client, message: Message):
         
 # --- Telegram command ---
 @Client.on_message(filters.command("listallcommands") & filters.user(ADMINS))
-async def list_all_commands(client, message: Message):
+async def list_all_commands(client, message):
     try:
         commands_dict = list_commands_in_project(".")
-
         if not commands_dict:
             await message.reply("No commands found in the project.")
             return
 
         output_lines = []
 
-        for filepath, cmds in commands_dict.items():
-            output_lines.append(f"\n📁 {filepath}:")
-            for entry in cmds:
-                for cmd in entry["commands"]:
-                    tag = " - Admin only" if entry["admin_only"] else ""
-                    output_lines.append(f"{cmd}{tag}")
+        for file_path, command_lines in commands_dict.items():
+            rel_path = os.path.relpath(file_path, ".")
+            folder = os.path.dirname(rel_path)
+            # Format /folder/filename.py if in subfolder, else filename.py
+            display_path = f"{folder}/{os.path.basename(file_path)}" if folder != '.' else os.path.basename(file_path)
+            output_lines.append(f"\n📁 `{display_path}`:")
+            for cmd_line in command_lines:
+                # Extract command name(s) from 'filters.command' argument
+                match = re.search(r'filters\.command\((.*?)[),]', cmd_line)
+                if match:
+                    cmd_arg = match.group(1)
+                    # Handles single string or list
+                    if cmd_arg.startswith("["):
+                        cmds = ast.literal_eval(cmd_arg)
+                    else:
+                        cmds = [ast.literal_eval(cmd_arg)]
+                    for cmd in cmds:
+                        if isinstance(cmd, str):
+                            # Check if admin-only (by presence of filters.user(ADMINS) in this line)
+                            is_admin = ("filters.user(ADMINS)" in cmd_line) or ("filters.user(ADMINS)" in open(file_path, 'r', encoding='utf-8').read())
+                            admin_note = " - Admin only" if is_admin else ""
+                            output_lines.append(f" • `/{cmd}`{admin_note}")
+                else:
+                    output_lines.append(f" • (Unknown command format)")
 
         output_text = "\n".join(output_lines)
 
-        with io.BytesIO(output_text.encode("utf-8")) as file:
-            file.name = "all_bot_commands_clean.txt"
-            await message.reply_document(document=file, caption="📄 All Bot Commands")
-
+        # Save as text file if too long
+        if len(output_text) > 4000:
+            with io.BytesIO(output_text.encode("utf-8")) as file:
+                file.name = "all_bot_commands.txt"
+                await message.reply_document(document=file, caption="📄 Here's the list of all bot commands!")
+        else:
+            await message.reply(output_text)
     except Exception as e:
-        await message.reply(f"⚠️ Error occurred:\n<code>{e}</code>")
-        
+        await message.reply(f"⚠️ Error: {e}")
