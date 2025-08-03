@@ -418,7 +418,7 @@ async def advantage_spell_chok(msg, text):
     except Exception as e:
         print(f"[Delete Error] Failed to delete bot message: {e}")
     try:
-        await msg.delete()
+        await query.delete()
     except Exception as e:
         print(f"[Delete Error] Failed to delete user message: {e}")
 
