@@ -2,7 +2,6 @@ from pyrogram import Client, filters, enums
 from pyrogram.errors import ChatAdminRequired
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram.errors.exceptions.bad_request_400 import MessageTooLong, PeerIdInvalid, UserNotParticipant, MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
-
 from info import ADMINS, LOG_CHANNEL, SUPPORT_CHAT, UPDATE_CHANNEL, IMDB_TEMPLATE
 from utils import get_size, temp, extract_user, get_file_id, get_poster, humanbytes, get_settings
 from database.users_chats_db import db
@@ -12,10 +11,7 @@ import asyncio
 from datetime import date, datetime, timedelta
 import pytz
 from Script import script
-import logging, re, asyncio, time, shutil, psutil, os, sys
-import io
-import os
-import ast
+import logging, re, asyncio, time, shutil, psutil, io, os, sys
 from pyrogram import Client, filters
 from info import ADMINS
 
@@ -28,64 +24,25 @@ logger.setLevel(logging.ERROR)
 USE_12_HOUR_FORMAT = True             # Switch 12/24 hour format ON/OFF here
 
 
-# --- Extract command info from file ---
-def extract_command_info(file_path):
-    command_data = []
+def extract_commands_from_file(file_path):
+    commands = []
     with open(file_path, "r", encoding="utf-8") as f:
-        source = f.read()
-        try:
-            tree = ast.parse(source)
-        except SyntaxError:
-            return []
-
-        for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef):
-                decorators = node.decorator_list
-                for decorator in decorators:
-                    if isinstance(decorator, ast.Call) and hasattr(decorator.func, 'attr'):
-                        if decorator.func.attr == "on_message":
-                            cmd_list = []
-                            admin_only = False
-
-                            for arg in decorator.args:
-                                # Check for filters.command
-                                if isinstance(arg, ast.Call) and hasattr(arg.func, 'attr'):
-                                    if arg.func.attr == "command":
-                                        # Extract command strings
-                                        for cmd_arg in arg.args:
-                                            if isinstance(cmd_arg, ast.Str):
-                                                cmd_list.append(f"/{cmd_arg.s}")
-                                            elif isinstance(cmd_arg, ast.List):
-                                                for el in cmd_arg.elts:
-                                                    if isinstance(el, ast.Str):
-                                                        cmd_list.append(f"/{el.s}")
-
-                                # Check for filters.user(ADMINS)
-                                if isinstance(arg, ast.Call):
-                                    if hasattr(arg.func, 'attr') and arg.func.attr == "user":
-                                        for val in arg.args:
-                                            if isinstance(val, ast.Name) and val.id == "ADMINS":
-                                                admin_only = True
-
-                            if cmd_list:
-                                command_data.append({
-                                    "commands": cmd_list,
-                                    "admin_only": admin_only
-                                })
-
-    return command_data
+        lines = f.readlines()
+        for line in lines:
+            if "filters.command" in line:
+                commands.append(line.strip())
+    return commands
 
 
-# --- Scan all Python files in the project ---
 def list_commands_in_project(directory):
     all_commands = {}
     for root, dirs, files in os.walk(directory):
         for file in files:
             if file.endswith(".py"):
                 file_path = os.path.join(root, file)
-                cmd_info = extract_command_info(file_path)
-                if cmd_info:
-                    all_commands[file_path] = cmd_info
+                commands = extract_commands_from_file(file_path)
+                if commands:
+                    all_commands[file_path] = commands
     return all_commands
 
 
@@ -870,7 +827,6 @@ async def get_settings_cmd(client, message: Message):
         await message.reply(f"❌ Error: {e}")
         
         
-# --- Telegram command ---
 @Client.on_message(filters.command("listallcommands") & filters.user(ADMINS))
 async def list_all_commands(client, message):
     try:
@@ -881,39 +837,17 @@ async def list_all_commands(client, message):
 
         output_lines = []
 
-        for file_path, command_lines in commands_dict.items():
-            rel_path = os.path.relpath(file_path, ".")
-            folder = os.path.dirname(rel_path)
-            # Format /folder/filename.py if in subfolder, else filename.py
-            display_path = f"{folder}/{os.path.basename(file_path)}" if folder != '.' else os.path.basename(file_path)
-            output_lines.append(f"\n📁 `{display_path}`:")
-            for cmd_line in command_lines:
-                # Extract command name(s) from 'filters.command' argument
-                match = re.search(r'filters\.command\((.*?)[),]', cmd_line)
-                if match:
-                    cmd_arg = match.group(1)
-                    # Handles single string or list
-                    if cmd_arg.startswith("["):
-                        cmds = ast.literal_eval(cmd_arg)
-                    else:
-                        cmds = [ast.literal_eval(cmd_arg)]
-                    for cmd in cmds:
-                        if isinstance(cmd, str):
-                            # Check if admin-only (by presence of filters.user(ADMINS) in this line)
-                            is_admin = ("filters.user(ADMINS)" in cmd_line) or ("filters.user(ADMINS)" in open(file_path, 'r', encoding='utf-8').read())
-                            admin_note = " - Admin only" if is_admin else ""
-                            output_lines.append(f" • `/{cmd}`{admin_note}")
-                else:
-                    output_lines.append(f" • (Unknown command format)")
+        for filename, command_lines in commands_dict.items():
+            output_lines.append(f"\n📁 {filename}:")
+            for cmd in command_lines:
+                output_lines.append(f" • {cmd}")
 
         output_text = "\n".join(output_lines)
 
-        # Save as text file if too long
-        if len(output_text) > 4000:
-            with io.BytesIO(output_text.encode("utf-8")) as file:
-                file.name = "all_bot_commands.txt"
-                await message.reply_document(document=file, caption="📄 Here's the list of all bot commands!")
-        else:
-            await message.reply(output_text)
+        # Save as text file
+        with io.BytesIO(output_text.encode("utf-8")) as file:
+            file.name = "all_bot_commands.txt"
+            await message.reply_document(document=file, caption="📄 Here's the list of all bot commands!")
+
     except Exception as e:
         await message.reply(f"⚠️ Error: {e}")
