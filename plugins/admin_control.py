@@ -2,7 +2,7 @@ from pyrogram import Client, filters, enums
 from pyrogram.errors import ChatAdminRequired
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram.errors.exceptions.bad_request_400 import MessageTooLong, PeerIdInvalid, UserNotParticipant, MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
-from info import ADMINS, LOG_CHANNEL, SUPPORT_CHAT, UPDATE_CHANNEL, IMDB_TEMPLATE
+from info import ADMINS, LOG_CHANNEL, SUPPORT_CHAT, UPDATE_CHANNEL, IMDB_TEMPLATE, UPTIME 
 from utils import get_size, temp, extract_user, get_file_id, get_poster, humanbytes, get_settings
 from database.users_chats_db import db
 from database.ia_filterdb import Media
@@ -892,3 +892,26 @@ async def list_all_commands(client, message):
     except Exception as e:
         await message.reply(f"⚠️ Error: {e}")
         
+@Client.on_message(filters.command("uptime") & filters.private)
+async def get_uptime(client, message):
+    now = datetime.now(pytz.timezone("Asia/Kolkata"))
+    diff = now - UPTIME
+
+    days, seconds = diff.days, diff.seconds
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+
+    uptime_str = ""
+    if days > 0:
+        uptime_str += f"{days} Day(s), "
+    if hours > 0:
+        uptime_str += f"{hours} Hour(s), "
+    if minutes > 0:
+        uptime_str += f"{minutes} Minute(s), "
+    uptime_str += f"{seconds} Second(s)"
+
+    await message.reply_text(
+        f"🤖 <b>Bot Uptime:</b>\n⏱️ <code>{uptime_str}</code>",
+        quote=True
+    )
