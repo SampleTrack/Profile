@@ -862,7 +862,7 @@ async def list_all_commands(client, message):
             file_block = file_header
             for cmd_list, is_admin in command_entries:
                 tag = "👮‍♂️ (Admin)" if is_admin else ""
-                cmds_str = ", ".join([f"<code>/{cmd}</code>" for cmd in cmd_list])
+                cmds_str = ", ".join([f"/{cmd}" for cmd in cmd_list])
                 file_block += f" • {cmds_str} {tag}\n"
 
             if len(current_msg) + len(file_block) > max_len:
