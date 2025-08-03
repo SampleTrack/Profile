@@ -847,21 +847,47 @@ async def list_all_commands(client, message):
             await message.reply("No commands found in the project.")
             return
 
-        output_lines = []
+        max_len = 4096
+        current_msg = ""
+        all_msgs = []
+
+        def flush():
+            nonlocal current_msg
+            if current_msg.strip():
+                all_msgs.append(current_msg.strip())
+                current_msg = ""
 
         for filename, command_entries in commands_dict.items():
-            output_lines.append(f"\n📁 {filename}:")
+            file_header = f"\n📁 <code>{filename}</code>:\n"
+            file_block = file_header
             for cmd_list, is_admin in command_entries:
                 tag = "👮‍♂️ (Admin)" if is_admin else ""
-                cmds_str = ", ".join([f"/{cmd}" for cmd in cmd_list])
-                output_lines.append(f" • {cmds_str} {tag}".strip())
+                cmds_str = ", ".join([f"<code>/{cmd}</code>" for cmd in cmd_list])
+                file_block += f" • {cmds_str} {tag}\n"
 
-        output_text = "\n".join(output_lines)
+            if len(current_msg) + len(file_block) > max_len:
+                flush()
 
-        # Save as text file
-        with io.BytesIO(output_text.encode("utf-8")) as file:
-            file.name = "all_bot_commands.txt"
-            await message.reply_document(document=file, caption="📄 Here's the cleaned list of all bot commands!")
+            # if still too big, even alone
+            if len(file_block) > max_len:
+                # split lines safely
+                lines = file_block.splitlines(keepends=True)
+                temp_block = ""
+                for line in lines:
+                    if len(temp_block) + len(line) > max_len:
+                        all_msgs.append(temp_block)
+                        temp_block = ""
+                    temp_block += line
+                if temp_block:
+                    all_msgs.append(temp_block)
+                current_msg = ""
+            else:
+                current_msg += file_block
+
+        flush()
+
+        for i, part in enumerate(all_msgs):
+            await message.reply(part, quote=True)
 
     except Exception as e:
         await message.reply(f"⚠️ Error: {e}")
