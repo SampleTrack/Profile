@@ -1,4 +1,5 @@
-.types import *
+from pyrogram import Client, filters, enums
+from pyrogram.types import *
 from aiohttp import ClientSession
 from io import BytesIO
 import psutil, shutil, time
@@ -20,23 +21,17 @@ async def make_carbon(code):
 async def carbon_func(b, message):
     if not message.reply_to_message or not message.reply_to_message.text:
         return await message.reply_text("📝 ᴘʟᴇᴀꜱᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴛᴇxᴛ ᴍᴇssᴀɢᴇ.")
-
     m = await message.reply_text("🎨 Cʀᴇᴀᴛɪɴɢ Cᴀʀʙᴏɴ...")
-
     carbon_img = await make_carbon(message.reply_to_message.text)
-
     if not carbon_img:
         return await m.edit("❌ Fᴀɪʟᴇᴅ ᴛᴏ ɢᴇɴᴇʀᴀᴛᴇ ᴄᴀʀʙᴏɴ.")
-
     await m.edit("⏫ Uᴘʟᴏᴀᴅɪɴɢ...")
-
     await message.reply_photo(
         photo=carbon_img,
-        caption="✨ Mᴀᴅᴇ Bʏ: @mkn_bots_updates",
+        caption="✨ Mᴀᴅᴇ Bʏ: Me",
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("💖 Sᴜᴘᴘᴏʀᴛ Uꜱ", url="https://t.me/mkn_bots_updates")]
+            [InlineKeyboardButton("💖 Sᴜᴘᴘᴏʀᴛ Uꜱ", url="https://t.me/+pXzjJ61z81IyMGFl")]
         ])
     )
-
     await m.delete()
     carbon_img.close()
