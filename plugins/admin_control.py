@@ -3,7 +3,7 @@ from pyrogram.errors import ChatAdminRequired
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram.errors.exceptions.bad_request_400 import MessageTooLong, PeerIdInvalid, UserNotParticipant, MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
 from info import ADMINS, LOG_CHANNEL, SUPPORT_CHAT, UPDATE_CHANNEL, IMDB_TEMPLATE, UPTIME 
-from utils import get_size, temp, extract_user, get_file_id, get_poster, humanbytes, get_settings
+from utils import get_size, temp, extract_user, get_file_id, get_poster, humanbytes, get_settings, extract_commands_from_file, list_commands_in_project
 from database.users_chats_db import db
 from database.ia_filterdb import Media
 from datetime import datetime, timedelta
@@ -22,40 +22,6 @@ logger.setLevel(logging.ERROR)
 
 # Configurations
 USE_12_HOUR_FORMAT = True             # Switch 12/24 hour format ON/OFF here
-
-
-def extract_commands_from_file(file_path):
-    commands = []
-    with open(file_path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-        for line in lines:
-            if "filters.command" in line:
-                cmd_match = re.search(r"filters\.command\((.*?)\)", line)
-                if cmd_match:
-                    raw_cmds = cmd_match.group(1)
-                    try:
-                        # Convert string like "['filter', 'add']" to actual list
-                        cmd_list = eval(raw_cmds, {"__builtins__": {}})
-                    except:
-                        cmd_list = [raw_cmds.strip("'\"")]
-                    if not isinstance(cmd_list, list):
-                        cmd_list = [cmd_list]
-
-                    is_admin = "filters.user(ADMINS)" in line or "filters.user(ADMINS)" in line.replace(" ", "")
-                    commands.append((cmd_list, is_admin))
-    return commands
-
-
-def list_commands_in_project(directory):
-    all_commands = {}
-    for root, dirs, files in os.walk(directory):
-        for file in files:
-            if file.endswith(".py"):
-                file_path = os.path.join(root, file)
-                commands = extract_commands_from_file(file_path)
-                if commands:
-                    all_commands[file_path] = commands
-    return all_commands
 
 
 @Client.on_message(filters.new_chat_members & filters.group)
