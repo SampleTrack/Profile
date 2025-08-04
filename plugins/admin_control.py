@@ -544,13 +544,18 @@ async def imdb_callback(bot: Client, quer_y: CallbackQuery):
 @Client.on_message(filters.command("restart") & filters.user(ADMINS))
 async def restart_bot(client: Client, message: Message):
     try:
-        reply = await message.reply("🔄 Restarting the bot, please wait...")
+        reply = await message.reply_text("🔄 **Restarting the bot... Please wait!**")
         await asyncio.sleep(2)
+        await reply.edit_text("✅ **Bot restarted successfully!**")
+        await asyncio.sleep(1)
         await reply.delete()
         os.execl(sys.executable, sys.executable, *sys.argv)
     except Exception as e:
-        await message.reply(f"❌ Failed to restart the bot.\n**Error:** `{e}`")
-        
+        await message.reply_text(
+            f"❌ **Failed to restart the bot.**\n\n**Error:** `{str(e)}`"
+        )
+
+
 @Client.on_message(filters.command("checkveri"))
 async def check_veri(client, message: Message):
     args = message.text.split()
