@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import pytz
 
 from info import ADMINS, LOG_CHANNEL  
-from database import db  
+from database.users_chats_db import db
 
 @Client.on_message(filters.command("addpremium") & filters.user(ADMINS))
 async def add_premium(client, message):
