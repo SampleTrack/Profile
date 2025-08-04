@@ -257,16 +257,12 @@ async def get_stats(bot, message: Message):
         
 @Client.on_message(filters.command("dbsize"))
 async def db_size(client, message):
-    stats = db.get_db_size()
-    storage_size = stats.get("storageSize", 0)
-    data_size = stats.get("dataSize", 0)
-    total_size_mb = (storage_size + data_size) / (1024 * 1024)
+    data_size = await db.get_db_size()
+    total_size_mb = data_size / (1024 * 1024)
 
     await message.reply_text(
-        f"🗄️ Database Size:\n"
-        f"- Data Size: {data_size / (1024 * 1024):.2f} MB\n"
-        f"- Storage Size: {storage_size / (1024 * 1024):.2f} MB\n"
-        f"- Total: {total_size_mb:.2f} MB"
+        f"🗄️ <b>Database Size</b>:\n"
+        f"• <b>Data Size:</b> {total_size_mb:.2f} MB"
     )
     
 @Client.on_message(filters.command('invite') & filters.user(ADMINS))
