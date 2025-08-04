@@ -20,7 +20,7 @@ async def add_premium(client, message):
         expire = datetime.now(tz) + timedelta(days=days)
         temp_time = expire.strftime("%H:%M:%S")
         date_var, time_var = str(expire).split(" ")
-        await update_premium_status(bot, user.id, date_var, temp_time)
+        await update_premium_status(client, user.id, date_var, temp_time)
 
         # Admin confirmation
         await message.reply(
