@@ -546,6 +546,17 @@ async def update_verify_status(bot, userid, date_temp, time_temp):
         # Optional: send a message to admin or log channel
         await bot.send_message(LOG_CHANNEL, f"⚠️ Error verifying user `{userid}`:\n`{str(e)}`")
 
+async def update_premium_status(bot, userid, date_temp, time_temp):
+    try:
+        status = await get_verify_status(bot, userid)
+        status["date"] = date_temp
+        status["time"] = time_temp
+        temp.VERIFY[userid] = status
+        await db.update_verification(userid, date_temp, time_temp)
+    except Exception as e:
+        logging.error(f"❌ Error occurred while verifying user {userid}: {e}", exc_info=True)
+        await bot.send_message(LOG_CHANNEL, f"⚠️ Error verifying user `{userid}`:\n`{str(e)}`")
+      
 async def verify_user(bot, userid, token):
     try:
         user = await bot.get_users(int(userid))
