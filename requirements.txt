@@ -6,6 +6,7 @@ requests
 ujson
 wheel
 wget
+pytz
 
 # 🗃️ Database & ORM
 pymongo[srv]==3.12.3
@@ -40,3 +41,4 @@ psutil
 
 # 🌿 Scraping & Parsing
 beautifulsoup4
+
