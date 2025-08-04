@@ -229,20 +229,35 @@ async def re_enable_chat(bot, message):
 
 
 @Client.on_message(filters.command('stats') & filters.incoming)
-async def get_ststs(bot, message):
-    rju = await message.reply('<b>Pʟᴇᴀꜱᴇ Wᴀɪᴛ...</b>')
-    total_users = await db.total_users_count()
-    totl_chats = await db.total_chat_count()
-    files = await Media.count_documents()
-    size = await db.get_db_size()
-    free = 536870912 - size
-    size = get_size(size)
-    free = get_size(free)
-    await rju.edit(script.STATUS_TXT.format(files, total_users, totl_chats, size, free))
-
+async def get_stats(bot, message: Message):
+    response = await message.reply('<b>📊 Gathering stats, please wait...</b>')
+    try:
+        total_users = await db.total_users_count()
+        total_chats = await db.total_chat_count()
+        total_files = await Media.count_documents()
+        used_storage = await db.get_db_size()
+        total_limit = 536870912
+        remaining = total_limit - used_storage
+        if remaining < 0:
+            remaining = 0
+        used_size = get_size(used_storage)
+        remaining_size = get_size(remaining)
+        await response.edit(
+            script.STATUS_TXT.format(
+                total_files,
+                total_users,
+                total_chats,
+                used_size,
+                remaining_size
+            )
+        )
+    except Exception as e:
+        await response.edit(f"❌ Error fetching stats:\n<code>{str(e)}</code>")
+        
+        
 @Client.on_message(filters.command("dbsize"))
 async def db_size(client, message):
-    stats = db.get_db_size("dbstats")
+    stats = db.get_db_size()
     storage_size = stats.get("storageSize", 0)
     data_size = stats.get("dataSize", 0)
     total_size_mb = (storage_size + data_size) / (1024 * 1024)
