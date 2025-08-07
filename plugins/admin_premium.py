@@ -2,66 +2,56 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 from datetime import datetime, timedelta
 import pytz
-from utils import update_premium_status
+from utils import add_premium_user
 from info import ADMINS, LOG_CHANNEL  
 from database.users_chats_db import db
 
 @Client.on_message(filters.command("addpremium") & filters.user(ADMINS))
-async def add_premium(client, message):
+async def add_premium(client, message: Message):
     try:
         args = message.text.split()
+
         if len(args) < 2:
-            return await message.reply("❌ Usage: /addpremium user_id days")
-        
+            return await message.reply("❌ Usage: `/addpremium user_id [days]`", quote=True)
+
         user_id = int(args[1])
         days = int(args[2]) if len(args) > 2 else 30
-        
-        tz = pytz.timezone("Asia/Kolkata")
-        expire = datetime.now(tz) + timedelta(days=days)
-        temp_time = expire.strftime("%H:%M:%S")
-        date_var, time_var = str(expire).split(" ")
-        await update_premium_status(client, user_id, date_var, temp_time)
+        hours = days * 24
 
-        # Admin confirmation
+        expiry_date, expiry_time = await add_premium_user(client, user_id, hours)
+
+        if not expiry_date:
+            return await message.reply("❌ Failed to upgrade user to premium.", quote=True)
         await message.reply(
-            f"✅ Added premium to user `{user_id}` for {days} days.\n"
-            f"⏳ Expires on **{date_var} {temp_time}**."
+            f"✅ Premium added to user `{user_id}` for {days} days.\n"
+            f"⏳ Expires on **{expiry_date} {expiry_time}**."
+        )
+        await client.send_message(
+            chat_id=LOG_CHANNEL,
+            text=(
+                f"📢 **Premium Activated**\n\n"
+                f"👤 User ID: `{user_id}`\n"
+                f"⏳ Valid for: `{days} days`\n"
+                f"🕒 Expires on: `{expiry_date} {expiry_time}`\n"
+                f"🔧 Activated by: [{message.from_user.first_name}](tg://user?id={message.from_user.id})"
+            )
+        )
+        await client.send_message(
+            chat_id=user_id,
+            text=(
+                f"🎉 Congratulations!\n\n"
+                f"💎 You’ve been upgraded to **Premium** for **{days} days**.\n"
+                f"⏳ Expires on: `{expiry_date} {expiry_time}`\n\n"
+                f"Enjoy your ad-free, enhanced experience! 🥳"
+            ),
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔍 Check Premium", callback_data="check_premium")],
+                [InlineKeyboardButton("📩 Contact Support", url="https://t.me/MyselfPrincess")]
+            ])
         )
 
-        # Log in channel
-        try:
-            await client.send_message(
-                chat_id=LOG_CHANNEL,
-                text=(
-                    f"📢 **Premium Activated**\n\n"
-                    f"👤 User ID: `{user_id}`\n"
-                    f"⏳ Valid for: `{days} days`\n"
-                    f"🕒 Expires on: `{date_var} {temp_time}`\n"
-                    f"🔧 Activated by: [{message.from_user.first_name}](tg://user?id={message.from_user.id})"
-                )
-            )
-        except Exception as log_error:
-            await message.reply(f"⚠️ Failed to log to channel: `{log_error}`")
-
-        # Notify the user
-        try:
-            await client.send_message(
-                chat_id=user_id,
-                text=(
-                    f"🎉 Congratulations!\n\n"
-                    f"💎 You’ve been upgraded to **Premium** for **{days} days**.\n"
-                    f"⏳ Expires on: `{date_var} {temp_time}`\n\n"
-                    f"Enjoy your ad-free, enhanced experience! 🥳"
-                ),
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🔍 Check Premium", callback_data="check_premium")],
-                    [InlineKeyboardButton("📩 Contact Support", url=f"https://t.me/MyselfPrincess")]
-                ])
-            )
-        except Exception as notify_error:
-            await message.reply(f"⚠️ Couldn't notify the user: `{notify_error}`")
     except Exception as e:
-        await message.reply(f"⚠️ Error: `{e}`")
+        await message.reply(f"⚠️ Error: `{str(e)}`", quote=True)
         
 @Client.on_message(filters.command("removepremium") & filters.user(ADMINS))
 async def remove_premium(client, message):
