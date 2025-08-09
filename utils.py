@@ -553,11 +553,12 @@ async def update_premium_status(bot, userid, date_temp, time_temp):
         status["time"] = time_temp
         temp.VERIFY[userid] = status
         await db.update_verification(userid, date_temp, time_temp)
+        await send_verification_log(bot, userid, date_temp, time_temp)
     except Exception as e:
         logging.error(f"❌ Error occurred while verifying user {userid}: {e}", exc_info=True)
         await bot.send_message(LOG_CHANNEL, f"⚠️ Error verifying user `{userid}`:\n`{str(e)}`")
 
-async def add_premium_user(bot, user_id, hours):
+async def premium_user(bot, user_id, hours):
     try:
         user = await bot.get_users(int(user_id))
         if not await db.is_user_exist(user.id):
