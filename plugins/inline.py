@@ -1,60 +1,43 @@
 import logging
-import asyncio
 from pyrogram import Client, emoji, filters
-from pyrogram.errors import QueryIdInvalid
-from pyrogram.types import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    InlineQueryResultCachedDocument,
-    InlineQuery
-)
-
+from pyrogram.errors.exceptions.bad_request_400 import QueryIdInvalid
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultCachedDocument, InlineQuery
 from database.ia_filterdb import get_search_results
-from database.users_chats_db import db
-from utils import is_subscribed, get_size, temp, check_verification
-from info import CACHE_TIME, AUTH_USERS, AUTH_CHANNEL, CUSTOM_FILE_CAPTION, LOG_CHANNEL, PREMIUM_MODE
-from Script import script
+from utils import is_subscribed, get_size, temp
+from info import CACHE_TIME, AUTH_USERS, AUTH_CHANNEL, CUSTOM_FILE_CAPTION, REQ_CHANNEL
 
 logger = logging.getLogger(__name__)
 cache_time = 0 if AUTH_USERS or AUTH_CHANNEL else CACHE_TIME
 
 
+async def inline_users(query: InlineQuery):
+    if AUTH_USERS:
+        if query.from_user and query.from_user.id in AUTH_USERS:
+            return True
+        else:
+            return False
+    if query.from_user and query.from_user.id not in temp.BANNED_USERS:
+        return True
+    return False
+
+
 @Client.on_inline_query()
-async def answer(bot, query: InlineQuery):
-    """Inline query handler with QueryIdInvalid fix and timeout control."""
+async def answer(bot, query):
+    """Show search results for given inline query"""
 
-    user_id = query.from_user.id
-
-    # Step 1: Blocked user check
-    if user_id in temp.BANNED_USERS:
-        await safe_answer(query,
-                          results=[],
-                          cache_time=0,
-                          switch_pm_text="⚠️ You are not allowed to use this bot.",
-                          switch_pm_parameter="not_allowed")
+    if not await inline_users(query):
+        await query.answer(results=[],
+                           cache_time=0,
+                           switch_pm_text='okDa',
+                           switch_pm_parameter="hehe")
         return
 
-    # Step 2: AUTH_CHANNEL check
-    if AUTH_CHANNEL:
-        # Step 3: Subscription check
-        if not await is_subscribed(bot, query):
-            await safe_answer(query,
-                              results=[],
-                              cache_time=0,
-                              switch_pm_text="📢 Join our channel to use this bot.",
-                              switch_pm_parameter="subscribe")
-            return
-
-    # Step 4: PREMIUM_MODE check
-    if PREMIUM_MODE:
-        # Step 5: Premium verification
-        if not await check_verification(bot, user_id):
-            await safe_answer(query,
-                              results=[],
-                              cache_time=0,
-                              switch_pm_text="💎 Premium Only - ₹99\nTap to Buy Premium",
-                              switch_pm_parameter="premium")
-            return
+    if (AUTH_CHANNEL or REQ_CHANNEL) and not await is_subscribed(bot, query):
+        await query.answer(results=[],
+                           cache_time=0,
+                           switch_pm_text='You have to subscribe my channel to use the bot',
+                           switch_pm_parameter="subscribe")
+        return
 
     results = []
     if '|' in query.query:
@@ -67,18 +50,23 @@ async def answer(bot, query: InlineQuery):
 
     offset = int(query.offset or 0)
     reply_markup = get_reply_markup(query=string)
-    files, next_offset, total = await get_search_results(string, file_type=file_type, max_results=10, offset=offset)
-                                                 
+    files, next_offset, total = await get_search_results(string,
+                                                         file_type=file_type,
+                                                         max_results=10,
+                                                         offset=offset)
+
     for file in files:
-        title=file.file_name
-        size=get_size(file.file_size)
-        f_caption=file.caption
+        title = file.file_name
+        size = get_size(file.file_size)
+        f_caption = file.caption
         if CUSTOM_FILE_CAPTION:
             try:
-                f_caption=CUSTOM_FILE_CAPTION.format(mention=query.from_user.mention, file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
+                f_caption = CUSTOM_FILE_CAPTION.format(file_name='' if title is None else title,
+                                                       file_size='' if size is None else size,
+                                                       file_caption='' if f_caption is None else f_caption)
             except Exception as e:
                 logger.exception(e)
-                f_caption=f_caption
+                f_caption = f_caption
         if f_caption is None:
             f_caption = f"{file.file_name}"
         results.append(
@@ -95,28 +83,31 @@ async def answer(bot, query: InlineQuery):
             switch_pm_text += f" for {string}"
         try:
             await query.answer(results=results,
-                           is_personal = True,
-                           cache_time=cache_time,
-                           switch_pm_text=switch_pm_text,
-                           switch_pm_parameter="start",
-                           next_offset=str(next_offset))
+                               is_personal=True,
+                               cache_time=cache_time,
+                               switch_pm_text=switch_pm_text,
+                               switch_pm_parameter="start",
+                               next_offset=str(next_offset))
         except QueryIdInvalid:
             pass
         except Exception as e:
             logging.exception(str(e))
     else:
-        switch_pm_text = f'{emoji.CROSS_MARK} No Results'
+        switch_pm_text = f'{emoji.CROSS_MARK} No results'
         if string:
             switch_pm_text += f' for "{string}"'
 
         await query.answer(results=[],
-                           is_personal = True,
+                           is_personal=True,
                            cache_time=cache_time,
                            switch_pm_text=switch_pm_text,
                            switch_pm_parameter="okay")
 
 
 def get_reply_markup(query):
-    buttons = [[InlineKeyboardButton('⟳ ꜱᴇᴀʀᴄʜ ᴀɢᴀɪɴ', switch_inline_query_current_chat=query)]]
+    buttons = [
+        [
+            InlineKeyboardButton('Search again', switch_inline_query_current_chat=query)
+        ]
+    ]
     return InlineKeyboardMarkup(buttons)
-
