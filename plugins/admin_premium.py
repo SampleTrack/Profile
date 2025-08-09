@@ -2,7 +2,7 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 from datetime import datetime, timedelta
 import pytz
-from utils import add_premium_user
+from utils import premium_user
 from info import ADMINS, LOG_CHANNEL  
 from database.users_chats_db import db
 
@@ -18,7 +18,7 @@ async def add_premium(client, message: Message):
         days = int(args[2]) if len(args) > 2 else 30
         hours = days * 24
 
-        expiry_date, expiry_time = await add_premium_user(client, user_id, hours)
+        expiry_date, expiry_time = await premium_user(client, user_id, hours)
 
         if not expiry_date:
             return await message.reply("❌ Failed to upgrade user to premium.", quote=True)
