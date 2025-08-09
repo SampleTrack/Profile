@@ -26,17 +26,23 @@ async def answer(bot, query):
     """Show search results for given inline query"""
 
     if not await inline_users(query):
-        await query.answer(results=[],
-                           cache_time=0,
-                           switch_pm_text='okDa',
-                           switch_pm_parameter="hehe")
+        try:
+            await query.answer(results=[],
+                               cache_time=0,
+                               switch_pm_text='okDa',
+                               switch_pm_parameter="hehe")
+        except QueryIdInvalid:
+            pass
         return
 
     if (AUTH_CHANNEL or REQ_CHANNEL) and not await is_subscribed(bot, query):
-        await query.answer(results=[],
-                           cache_time=0,
-                           switch_pm_text='You have to subscribe my channel to use the bot',
-                           switch_pm_parameter="subscribe")
+        try:
+            await query.answer(results=[],
+                               cache_time=0,
+                               switch_pm_text='You have to subscribe my channel to use the bot',
+                               switch_pm_parameter="subscribe")
+        except QueryIdInvalid:
+            pass
         return
 
     results = []
@@ -97,11 +103,14 @@ async def answer(bot, query):
         if string:
             switch_pm_text += f' for "{string}"'
 
-        await query.answer(results=[],
-                           is_personal=True,
-                           cache_time=cache_time,
-                           switch_pm_text=switch_pm_text,
-                           switch_pm_parameter="okay")
+        try:
+            await query.answer(results=[],
+                               is_personal=True,
+                               cache_time=cache_time,
+                               switch_pm_text=switch_pm_text,
+                               switch_pm_parameter="okay")
+        except QueryIdInvalid:
+            pass
 
 
 def get_reply_markup(query):
