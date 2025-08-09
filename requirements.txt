@@ -1,31 +1,43 @@
-pyrofork==2.3.68.post1
-tgcrypto-pyrofork==1.2.7.post1
-python-dotenv==1.1.1.post1
-dotenv==0.9.9.post1
-requests==2.32.4.post1
-ujson==<latest>.post1
-wheel==<latest>.post1
-wget==<latest>.post1
-pytz==<latest>.post1
-pymongo[srv]==<latest>.post1
-motor==<latest>.post1
-marshmallow==<latest>.post1
-umongo==<latest>.post1
-dnspython==<latest>.post1
-Flask==<latest>.post1
-gunicorn==<latest>.post1
-aiohttp==<latest>.post1
-aiofiles==<latest>.post1
-telegraph==<latest>.post1
-imdbpy==<latest>.post1
-cinemagoer==<latest>.post1
-youtube-search==<latest>.post1
-youtube-search-python==<latest>.post1
-yt-dlp==<latest>.post1
-pynewtonmath==<latest>.post1
-googletrans==<latest>.post1
-gTTS==<latest>.post1
-opencv-python-headless==<latest>.post1
-Pillow==<latest>.post1
-psutil==<latest>.post1
-beautifulsoup4==<latest>.post1
+# 🔧 Core Libraries
+pyrofork
+tgcrypto==1.2.5
+python-dotenv==1.1.1
+requests==2.32.4
+ujson==5.10.0
+wheel
+wget
+pytz==2025.1
+
+# 🗃️ Database & ORM
+pymongo[srv]==3.12.3
+motor==2.5.1
+marshmallow==3.14.1
+umongo==3.0.1
+dnspython
+
+# 🌐 Web & API
+Flask==2.2.2
+gunicorn==20.1.0
+aiohttp
+aiofiles
+telegraph
+
+# 🎥 Movie & Media Data
+imdbpy==2022.7.9
+cinemagoer
+youtube-search
+youtube-search-python
+yt-dlp
+
+# 🧠 AI, Math & Translation
+pynewtonmath
+googletrans
+gTTS
+
+# 🖼️ Image, Audio & System Utilities
+opencv-python-headless
+Pillow
+psutil
+
+# 🌿 Scraping & Parsing
+beautifulsoup4
