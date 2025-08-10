@@ -6,6 +6,9 @@ from utils import premium_user, update_verify_status
 from info import ADMINS, LOG_CHANNEL  
 from database.users_chats_db import db
 
+# Configurations
+USE_12_HOUR_FORMAT = True
+
 @Client.on_message(filters.command("addpremium") & filters.user(ADMINS))
 async def add_premium(client, message: Message):
     try:
