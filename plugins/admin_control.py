@@ -532,66 +532,71 @@ async def restart_bot(client: Client, message: Message):
             f"❌ **Failed to restart the bot.**\n\n**Error:** `{str(e)}`"
         )
 
-
-@Client.on_message(filters.command("checkveri"))
-async def check_veri(client, message: Message):
-    args = message.text.split()
-
-    # Only allow checking self
-    if len(args) > 1:
-        return await message.reply("⚠️ You can only check your own verification status.", quote=True)
-
-    user_id = message.from_user.id
-
-    # Step 2: Fetch verification data
-    data = await db.get_verified(user_id)
-    date_str = data.get('date', "1999-12-31")
-    time_str = data.get('time', "23:59:59")
-    verified_dt_str = f"{date_str} {time_str}"
-    default_dt_str = "1999-12-31 23:59:59"
-
-    tz = pytz.timezone("Asia/Kolkata")
-
-    # Step 3: Handle unverified users
-    if verified_dt_str == default_dt_str:
-        return await message.reply("🟡 You haven't verified yet. Please verify to activate your access.", quote=True)
-
+# Updated 
+@Client.on_message(filters.command("check_verification"))
+async def check_verification(client, message: Message):
     try:
-        # Parse verification time
+        args = message.text.split()
+        sender_id = message.from_user.id
+        sender_name = message.from_user.mention
+
+        # Only allow checking self
+        if len(args) > 1:
+            return await message.reply("⚠️ You can only check your own verification status.", quote=True)
+
+        user_id = sender_id
+        user_name = sender_name
+
+        # Fetch verification data
+        data = await db.get_verified(user_id)
+        if not data:
+            return await message.reply("🟡 No verification data found. Please verify first.", quote=True)
+
+        date_str = data.get('date', "1999-12-31")
+        time_str = data.get('time', "23:59:59")
+        verified_dt_str = f"{date_str} {time_str}"
+        default_dt_str = "1999-12-31 23:59:59"
+
+        tz = pytz.timezone("Asia/Kolkata")
+
+        # If never verified
+        if verified_dt_str == default_dt_str:
+            return await message.reply("🟡 You haven't verified yet. Please verify to activate your access.", quote=True)
+
+        # Parse verification time & expiry
         verified_dt = tz.localize(datetime.strptime(verified_dt_str, "%Y-%m-%d %H:%M:%S"))
         expiry_dt = verified_dt + timedelta(hours=12)
         now = datetime.now(tz)
-        time_left = expiry_dt - now
 
-        # Format datetime values
-        if USE_12_HOUR_FORMAT:
-            verified_fmt = verified_dt.strftime("%d %b %Y, %I:%M:%S %p IST")
-            expiry_fmt = expiry_dt.strftime("%d %b %Y, %I:%M:%S %p IST")
+        is_active = expiry_dt > now
+
+        # Time left calculation
+        if is_active:
+            delta = expiry_dt - now
+            days = delta.days
+            hours, remainder = divmod(delta.seconds, 3600)
+            minutes = remainder // 60
+            time_left = f"{days}d {hours}h {minutes}m"
         else:
-            verified_fmt = verified_dt.strftime("%d %b %Y, %H:%M:%S IST")
-            expiry_fmt = expiry_dt.strftime("%d %b %Y, %H:%M:%S IST")
+            time_left = "Expired ❌"
 
-        # Expired case
-        if time_left.total_seconds() <= 0:
-            return await message.reply(
-                f"⛔ **Verification Expired!**\n\n"
-                f"🗓️ Last Verified On : `{verified_fmt}`\n"
-                f"❌ Expired At       : `{expiry_fmt}`", quote=True)
+        # Format dates
+        last_on = verified_dt.strftime("%d/%m/%Y, %I:%M %p")
+        expires_on = expiry_dt.strftime("%d/%m/%Y, %I:%M %p")
 
-        # Format time left
-        hrs, rem = divmod(int(time_left.total_seconds()), 3600)
-        mins, secs = divmod(rem, 60)
-        time_left_fmt = f"{hrs}h {mins}m {secs}s"
-
-        # Success message
+        # Final message
         await message.reply(
-            f"✅ **You're Verified**\n\n"
-            f"🗓️ Verified On  : `{verified_fmt}`\n"
-            f"⏳ Expires In   : `{time_left_fmt}`\n"
-            f"📌 Expires At   : `{expiry_fmt}`", quote=True)
+            f"👤 **User:** `{user_id}` ({user_name})\n"
+            f"✅ **Verified Status:** {'😄 Active' if is_active else '😔 Expired'}\n"
+            f"🗓️ **Last On:** `{last_on}`\n"
+            f"📌 **Expires:** `{expires_on}`\n"
+            f"⏳ **Time Left:** `{time_left}`",
+            quote=True
+        )
 
     except Exception as e:
-        await message.reply(f"❌ Error checking verification data.\n\nDetails: `{e}`", quote=True)
+        await message.reply(f"❌ Error checking verification.\nDetails: `{e}`", quote=True)
+        
 
 
 # 📋 /veridata - Show all verified users
