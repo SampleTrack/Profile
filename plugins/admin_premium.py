@@ -100,13 +100,25 @@ async def check_premium(client, message: Message):
         now = datetime.now(tz)
         is_active = exp_dt > now
 
+        # Check activation date & "Not Premium" rule
+        activation_dt = tz.localize(datetime.strptime(status["activation_date"] + " " + status["activation_time"], "%Y-%m-%d %H:%M:%S")) \
+            if "activation_date" in status and "activation_time" in status else None
+        
+        not_premium = False
+        if activation_dt:
+            total_duration = (exp_dt - activation_dt).days
+            if total_duration <= 7:
+                not_premium = True
+
         # Calculate time left if active
-        if is_active:
+        if is_active and not not_premium:
             delta = exp_dt - now
             days = delta.days
             hours, remainder = divmod(delta.seconds, 3600)
             minutes = remainder // 60
             time_left = f"{days}d {hours}h {minutes}m"
+        elif not_premium:
+            time_left = "Not Premium 🚫"
         else:
             time_left = "Expired ❌"
 
@@ -117,7 +129,8 @@ async def check_premium(client, message: Message):
         # Reply with new format
         await message.reply(
             f"👤 **User:** `{user_id}` ({user_name})\n"
-            f"💎 **Premium Status:** {'😄 Active' if is_active else '😔 Expired'}\n"
+            f"💎 **Premium Status:** "
+            f"{'😄 Active' if is_active and not not_premium else ('🚫 Not Premium' if not_premium else '😔 Expired')}\n"
             f"🗓️ **Last On:** `{last_on}`\n"
             f"📌 **Expires:** `{expires_on}`\n"
             f"⏳ **Time Left:** `{time_left}`"
