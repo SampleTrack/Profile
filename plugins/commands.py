@@ -17,7 +17,7 @@ from database.ia_filterdb import Media, get_file_details, unpack_new_file_id
 from database.connections_mdb import active_connection
 
 from Script import script
-from utils import get_settings, get_size, is_subscribed, save_group_settings, temp, verify_user, check_token, check_verification, get_token
+from utils import get_settings, get_size, is_subscribed, safe_base64_decode, save_group_settings, temp, verify_user, check_token, check_verification, get_token
 from info import (
     PICS,
     ADMINS,
@@ -287,7 +287,11 @@ async def start(client, message):
 
     files_ = await get_file_details(file_id)           
     if not files_:
-        pre, file_id = ((base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))).decode("ascii")).split("_", 1)
+        decoded_data = safe_base64_decode(data)
+        if decoded_data:
+            pre, file_id = decoded_data.split("_", 1)
+        else:
+            return await message.reply("Invalid or unsupported start parameter.")
         try:
             if IS_VERIFY and not await check_verification(client, message.from_user.id):
                 btn = [[
