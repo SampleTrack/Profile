@@ -26,10 +26,10 @@ class Media(Document):
     file_type = fields.StrField(allow_none=True)
     mime_type = fields.StrField(allow_none=True)
     caption = fields.StrField(allow_none=True)
-
     class Meta:
         indexes = ('$file_name', )
         collection_name = COLLECTION_NAME
+
 
 
 async def save_file(media):
@@ -57,8 +57,6 @@ async def save_file(media):
             logger.info(str(getattr(media, "file_name", "NO FILE NAME")) + " is saved in database")
             return True, 1
 
-
-
 async def get_search_results(query, file_type=None, max_results=(MAX_RIST_BTNS), offset=0, filter=False):
     query = query.strip()
     if not query: raw_pattern = '.'
@@ -68,21 +66,39 @@ async def get_search_results(query, file_type=None, max_results=(MAX_RIST_BTNS),
     except: return [], '', 0
     filter = {'file_name': regex}
     if file_type: filter['file_type'] = file_type
-
     total_results = await Media.count_documents(filter)
     next_offset = offset + max_results
     if next_offset > total_results: next_offset = ''
-
     cursor = Media.find(filter)
-    # Sort by recent
     cursor.sort('$natural', -1)
-    # Slice files according to offset and max results
     cursor.skip(offset).limit(max_results)
-    # Get list of files
     files = await cursor.to_list(length=max_results)
     return files, next_offset, total_results
 
-
+async def get_search_results_fast(query, file_type=None, max_results=MAX_RIST_BTNS, offset=0):
+    query = query.strip()
+    if not query:
+        raw_pattern = '.'
+    else:
+        raw_pattern = re.escape(query)
+    try:
+        regex = re.compile(raw_pattern, flags=re.IGNORECASE)
+    except:
+        return [], '', 0
+    filter_q = {'file_name': regex}
+    if file_type:
+        filter_q['file_type'] = file_type
+    cursor = Media.find(filter_q, {"file_id": 1, "file_name": 1, "file_size": 1, "file_type": 1, "caption": 1})
+    cursor.sort('$natural', -1).skip(offset).limit(max_results + 1)
+    files = await cursor.to_list(length=max_results + 1)
+    if len(files) > max_results:
+        next_offset = offset + max_results
+        files = files[:max_results]
+    else:
+        next_offset = ''
+    total_results = offset + len(files)
+    return files, next_offset, total_results
+    
 async def get_file_details(query):
     filter = {'file_id': query}
     cursor = Media.find(filter)
