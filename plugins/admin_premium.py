@@ -75,54 +75,66 @@ async def check_premium(client, message: Message):
     try:
         args = message.text.split()
         sender_id = message.from_user.id
-        sender_name = message.from_user.mention
+        sender_name = message.from_user.first_name
         is_admin = sender_id in ADMINS
 
+        # Determine target user
         if len(args) > 1:
             if not is_admin:
                 return await message.reply("❌ You are not allowed to check other users' status.")
             user_id = int(args[1])
+            name_display = ""
         else:
             user_id = sender_id
+            name_display = " (Myself)"
 
-        # Fetch user data from DB
+        # Fetch data from DB
         data = await db.get_verified(user_id)
         date_str = data.get('date', "1999-12-31")
         time_str = data.get('time', "23:59:59")
         tz = pytz.timezone("Asia/Kolkata")
 
-        # Handle unverified users
+        # Handle unverified
         if date_str == "1999-12-31" and time_str == "23:59:59":
-            return await message.reply("🟡 User has not verified yet.")
+            return await message.reply(f"🟡 User: `{user_id}`{name_display}\n\nNot verified yet.")
 
-        # Parse date & time
+        # Parse & calculate
         verified_dt = tz.localize(datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M:%S"))
+        
+        # Expiry times
         verification_expiry = verified_dt + timedelta(hours=12)
-        premium_expiry = verified_dt
+        premium_expiry = verified_dt  # Change if premium expiry differs
+
         now = datetime.now(tz)
+
+        # Active statuses
         verification_active = verification_expiry > now
         premium_active = premium_expiry > now
 
-        if verification_active:
-            verification_time_left = str(verification_expiry - now).split(".")[0]  # hh:mm:ss
-        else:
-            verification_time_left = "Expired"
+        # Time left calculations
+        def time_left_str(expiry_dt):
+            if expiry_dt <= now:
+                return "Expired"
+            td = expiry_dt - now
+            hrs, rem = divmod(int(td.total_seconds()), 3600)
+            mins, secs = divmod(rem, 60)
+            return f"{hrs}h {mins}m {secs}s"
+
+        # Formatting dates
         def fmt(dt):
-            return dt.strftime("%d %b %Y, %I:%M:%S %p IST") if USE_12_HOUR_FORMAT else dt.strftime("%d %b %Y, %H:%M:%S IST")
+            return dt.strftime("%d/%m/%Y, %I:%M %p") if USE_12_HOUR_FORMAT else dt.strftime("%d/%m/%Y, %H:%M")
 
-        verified_fmt = fmt(verified_dt)
-        verification_exp_fmt = fmt(verification_expiry)
-        premium_exp_fmt = fmt(premium_expiry)
-
-        # Reply message
+        # Reply
         await message.reply(
-            f"👤 **User**: `{user_id}` {'(' + sender_name + ')' if user_id == sender_id else ''}\n"
-            f"💎 **Premium**: {'✅ Active' if premium_active else '❌ Expired'}\n"
-            f"🗓️ Premium Expires: `{premium_exp_fmt}`\n\n"
-            f"✅ **Verification**: {'Active' if verification_active else 'Expired'}\n"
-            f"🗓️ Verified On: `{verified_fmt}`\n"
-            f"📌 Verification Expires: `{verification_exp_fmt}`\n"
-            f"⏳ Time Left: `{verification_time_left}`"
+            f"👤 User: `{user_id}`{name_display}\n\n"
+            f"{'✅' if verification_active else '❌'} Verification: {'Active' if verification_active else 'Expired'}\n"
+            f"🗓️ Last On: {fmt(verified_dt)}\n"
+            f"📌 Expires: {fmt(verification_expiry)}\n"
+            f"⏳ Time Left: {time_left_str(verification_expiry)}\n\n"
+            f"{'✅' if premium_active else '❌'} Premium: {'Active' if premium_active else 'Expired'}\n"
+            f"🗓️ Last On: {fmt(verified_dt)}\n"
+            f"📌 Expires: {fmt(premium_expiry)}\n"
+            f"⏳ Time Left: {time_left_str(premium_expiry)}"
         )
 
     except Exception as e:
