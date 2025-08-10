@@ -215,7 +215,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
     # ------------------------
     # FILE REQUEST HANDLER
     # ------------------------
-    if data.startswith("file") or data.startswith("pmfile"):
+    if query.data.startswith("file") or query.data.startswith("pmfile"):
         clicked = query.from_user.id
         try:
             typed = getattr(getattr(query.message.reply_to_message, "from_user", None), "id", clicked)
