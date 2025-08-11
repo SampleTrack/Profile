@@ -911,23 +911,32 @@ async def get_uptime(client, message):
         quote=True
     )
     
-@Client.on_message(filters.command("restore_verification") & filters.user(ADMINS))
-async def restore_verification(client, message: Message):
-    default_status = {
-        'date': "1999-12-31",
-        'time': "23:59:59",
-        'days': "0"
-    }
+@Client.on_message(filters.command("reset_verifications"))
+async def reset_verifications(client: Client, message: Message):
     count = 0
+    failed = 0
+    default_date = "1999-12-31"
+    default_time = "23:59:59"
+    default_days = "0"
+
+    status_msg = await message.reply_text("⏳ Starting bulk verification update...")
 
     async for user in db.get_all_users():
-        await db.col.update_one(
-            {'id': user['id']},
-            {'$set': {'verification_status': default_status}}
-        )
-        count += 1
+        try:
+            await db.update_verification(
+                id=user['id'],
+                date=default_date,
+                time=default_time,
+                days=default_days
+            )
+            count += 1
+        except Exception:
+            failed += 1
 
-    await message.reply_text(
-        f"✅ Verification status restored to default for **{count}** users."
+    await status_msg.edit_text(
+        f"✅ Verification update complete!\n"
+        f"- Updated users: {count}\n"
+        f"- Failed updates: {failed}\n"
+        f"- Total attempted: {count + failed}"
     )
     
