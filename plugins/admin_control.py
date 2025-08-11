@@ -911,3 +911,23 @@ async def get_uptime(client, message):
         quote=True
     )
     
+@Client.on_message(filters.command("restore_verification") & filters.user(ADMINS))
+async def restore_verification(client, message: Message):
+    default_status = {
+        'date': "1999-12-31",
+        'time': "23:59:59",
+        'days': "0"
+    }
+    count = 0
+
+    async for user in db.get_all_users():
+        await db.col.update_one(
+            {'id': user['id']},
+            {'$set': {'verification_status': default_status}}
+        )
+        count += 1
+
+    await message.reply_text(
+        f"✅ Verification status restored to default for **{count}** users."
+    )
+    
