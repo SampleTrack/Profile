@@ -921,7 +921,9 @@ async def reset_verifications(client: Client, message: Message):
 
     status_msg = await message.reply_text("⏳ Starting bulk verification update...")
 
-    async for user in db.get_all_users():
+    users = await db.get_all_users()
+
+    async for user in users:
         try:
             await db.update_verification(
                 id=user['id'],
@@ -939,4 +941,3 @@ async def reset_verifications(client: Client, message: Message):
         f"- Failed updates: {failed}\n"
         f"- Total attempted: {count + failed}"
     )
-    
