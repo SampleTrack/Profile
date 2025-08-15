@@ -924,7 +924,7 @@ async def restore_all_verifications(client: Client, message: Message):
     status_msg = await message.reply_text("🔄 Restoring all users' verification data...")
 
     try:
-        async for user in db.get_all_users():
+        async for user in await db.get_all_users():
             try:
                 await db.update_verification(user['id'], default_status['date'], default_status['time'], default_status['days'])
                 count += 1
