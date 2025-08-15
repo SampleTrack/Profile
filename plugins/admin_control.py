@@ -911,33 +911,38 @@ async def get_uptime(client, message):
         quote=True
     )
     
-@Client.on_message(filters.command("reset_verifications"))
-async def reset_verifications(client: Client, message: Message):
+@Client.on_message(filters.command("restore_all_verifications") & filters.user(ADMINS))
+async def restore_all_verifications(client: Client, message: Message):
+    default_status = {
+        'date': "1999-12-31",
+        'time': "23:59:59",
+        'days': "0"
+    }
+
     count = 0
     failed = 0
-    default_date = "1999-12-31"
-    default_time = "23:59:59"
-    default_days = "0"
+    status_msg = await message.reply_text("🔄 Restoring all users' verification data...")
 
-    status_msg = await message.reply_text("⏳ Starting bulk verification update...")
+    try:
+        async for user in db.get_all_users():
+            try:
+                await db.update_verification(user['id'], default_status['date'], default_status['time'], default_status['days'])
+                count += 1
+            except Exception:
+                failed += 1
 
-    users = await db.get_all_users()
+        await status_msg.edit_text(
+            f"✅ Restoration completed.\n\n"
+            f"🔹 Restored: `{count}` users\n"
+            f"❌ Failed: `{failed}` users"
+        )
 
-    async for user in users:
-        try:
-            await db.update_verification(
-                id=user['id'],
-                date=default_date,
-                time=default_time,
-                days=default_days
-            )
-            count += 1
-        except Exception:
-            failed += 1
+        await client.send_message(
+            LOG_CHANNEL,
+            f"🛠 All users' verification data reset by {message.from_user.mention}.\n"
+            f"✅ Restored: `{count}`\n❌ Failed: `{failed}`"
+        )
 
-    await status_msg.edit_text(
-        f"✅ Verification update complete!\n"
-        f"- Updated users: {count}\n"
-        f"- Failed updates: {failed}\n"
-        f"- Total attempted: {count + failed}"
-    )
+    except Exception as e:
+        await status_msg.edit_text(f"⚠️ Error during restoration: `{e}`")
+        
