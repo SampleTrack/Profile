@@ -58,10 +58,10 @@ async def remove_premium(client, message: Message):
         args = message.text.split()
         if len(args) < 2:
             return await message.reply("❌ Usage: /removepremium user_id")
-        user_id = int(args[1])
         date_temp = "1999-12-31"
         time_temp = "23:59:59"
-        await update_verify_status(client, user_id, date_temp, time_temp)
+        days_temp = "0"
+        await update_verify_status(client, user_id, date_temp, time_temp, days_temp)
         await message.reply(f"✅ Removed premium for user `{user_id}`.")
     except Exception as e:
         await message.reply(f"⚠️ Error: `{e}`")
