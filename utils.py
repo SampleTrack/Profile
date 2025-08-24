@@ -141,6 +141,14 @@ async def get_poster(query, bulk=False, id=False, file=None):
         'url':f'https://www.imdb.com/title/tt{movieid}'
     }
    
+def safe_base64_decode(data):
+    try:
+        padded_data = data + "=" * (-len(data) % 4)
+        return base64.urlsafe_b64decode(padded_data).decode("ascii")
+    except Exception as e:
+        logger.warning(f"Base64 decode failed for: {data} | Error: {e}")
+        return None
+        
 def list_to_str(k):
     if not k: return "N/A"
     elif len(k) == 1: return str(k[0])
