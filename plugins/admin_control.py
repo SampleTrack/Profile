@@ -915,8 +915,7 @@ async def get_uptime(client, message):
 async def restore_all_verifications(client: Client, message: Message):
     default_status = {
         'date': "1999-12-31",
-        'time': "23:59:59",
-        'days': "0"
+        'time': "23:59:59"
     }
 
     count = 0
@@ -926,7 +925,7 @@ async def restore_all_verifications(client: Client, message: Message):
     try:
         async for user in await db.get_all_users():
             try:
-                await db.update_verification(user['id'], default_status['date'], default_status['time'], default_status['days'])
+                await db.update_verification(user['id'], default_status['date'], default_status['time'])
                 count += 1
             except Exception:
                 failed += 1
