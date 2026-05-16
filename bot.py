@@ -1,132 +1,140 @@
 import logging
 import logging.config
-
-# Get logging configurations
-logging.config.fileConfig('logging.conf')
-logging.getLogger().setLevel(logging.INFO)
-logging.getLogger("pyrogram").setLevel(logging.ERROR)
-logging.getLogger("imdbpy").setLevel(logging.ERROR)
-
 import asyncio
-from pyrogram import Client, __version__, filters  # Added filters for debugging
+from datetime import date, datetime
+from typing import Union, Optional, AsyncGenerator
+
+import pytz
+from aiohttp import web
+from pyrogram import Client, __version__, types
 from pyrogram.raw.all import layer
+
+# Database and configuration imports
 from database.ia_filterdb import Media
 from database.users_chats_db import db
 from info import SESSION, API_ID, API_HASH, BOT_TOKEN, PORT, LOG_CHANNEL
 from utils import temp
-from aiohttp import web
-from datetime import date, datetime 
-import pytz
 from Script import script 
 from plugins import web_server
-from typing import Union, Optional, AsyncGenerator
-from pyrogram import types
 
-# ==========================================
-# DEBUG FLAG: Set to True to diagnose issues.
-# Set back to False when you want normal operations.
-# ==========================================
-DEBUG_MODE = True 
+# Initialize logging configuration from external file
+logging.config.fileConfig('logging.conf')
+logger = logging.getLogger(__name__)
+
+# Suppress verbose third-party log outputs
+logging.getLogger("pyrogram").setLevel(logging.ERROR)
+logging.getLogger("imdbpy").setLevel(logging.ERROR)
+
 
 class Bot(Client):
+    """
+    Custom Telegram Client extending Pyrogram's core functional behavior.
+    Handles startup routines, background metrics reporting, and internal message iterations.
+    """
 
     def __init__(self):
-        # If debug mode is active, we temporarily disable loading the plugins folder
-        # to isolate if a broken plugin/filter is hijacking your commands.
-        plugin_config = {"root": "plugins"} if not DEBUG_MODE else None
-        if DEBUG_MODE:
-            logging.warning("⚠️ DEBUG_MODE IS ACTIVE. Normal plugins are temporarily disabled to run diagnostics.")
-
         super().__init__(
             name=SESSION,
             api_id=API_ID,
             api_hash=API_HASH,
             bot_token=BOT_TOKEN,
             workers=50,
-            plugins=plugin_config,
+            plugins={"root": "plugins"},
             sleep_threshold=5,
         )
+        self.username: Optional[str] = None
 
     async def start(self):
+        """Initializes dependencies, verifies active sessions, and mounts web routes."""
+        # 1. Fetch and cache banned entries to keep performance snappy
         b_users, b_chats = await db.get_banned()
         temp.BANNED_USERS = b_users
         temp.BANNED_CHATS = b_chats
+
+        # 2. Spin up the underlying Pyrogram client lifecycle
         await super().start()
         await Media.ensure_indexes()
+        
+        # 3. Synchronize bot identity and metadata cache
         me = await self.get_me()
         temp.ME = me.id
         temp.U_NAME = me.username
         temp.B_NAME = me.first_name
-        self.username = '@' + me.username
-        logging.info(f"{me.first_name} with for Pyrogram v{__version__} (Layer {layer}) started on {me.username}.")
+        self.username = f"@{me.username}"
+        
+        logger.info(f"{me.first_name} running Pyrogram v{__version__} (Layer {layer}) started successfully.")
+
+        # 4. Dispatch deployment alert to logging channel
         tz = pytz.timezone('Asia/Kolkata')
         today = date.today()
         now = datetime.now(tz)
-        time = now.strftime("%H:%M:%S %p")
-        await self.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(a=today, b=time, c=temp.U_NAME))
-        app = web.AppRunner(await web_server())
-        await app.setup()
-        bind_address = "0.0.0.0"
-        await web.TCPSite(app, bind_address, PORT).start()
+        formatted_time = now.strftime("%H:%M:%S %p")
+        
+        try:
+            await self.send_message(
+                chat_id=LOG_CHANNEL, 
+                text=script.RESTART_TXT.format(a=today, b=formatted_time, c=temp.U_NAME)
+            )
+        except Exception as err:
+            logger.error(f"Failed to deliver startup notification to LOG_CHANNEL: {err}")
 
-        # Injecting the debug message handler dynamically if debug mode is active
-        if DEBUG_MODE:
-            @self.on_message(filters.all, group=-100)
-            async def diagnostic_catch_all(client, message: types.Message):
-                user_info = message.from_user.username if message.from_user else f"ID: {message.from_user.id}" if message.from_user else "Unknown"
-                text_content = message.text or message.caption or "[No text content]"
-                
-                print("\n" + "="*50)
-                logging.info(f"📥 [DEBUG] RECEIVED MESSAGE from @{user_info}: {text_content}")
-                print("="*50 + "\n")
-                
-                try:
-                    sent_msg = await message.reply_text("🔄 [DEBUG] Bot received your message and can reply successfully!")
-                    logging.info(f"📤 [DEBUG] Reply sent successfully. Message ID: {sent_msg.id}")
-                except Exception as debug_err:
-                    logging.error(f"❌ [DEBUG] Failed to send outbound reply: {debug_err}", exc_info=True)
+        # 5. Serve aiohttp server asynchronously for health-checks or webhooks
+        app_runner = web.AppRunner(await web_server())
+        await app_runner.setup()
+        await web.TCPSite(app_runner, "0.0.0.0", PORT).start()
 
-        # FIX: Use asyncio.create_task to run this in the background without blocking updates
-        asyncio.create_task(self.send_report_message())
+        # 6. Offload metrics engine loop entirely to the background worker loop
+        asyncio.create_task(self._run_report_scheduler())
     
-    async def send_report_message(self):
+    async def _run_report_scheduler(self):
+        """Monitors clock time and aggregates operational analytical reports at midnight."""
+        tz = pytz.timezone('Asia/Kolkata')
+        
         while True:
-            tz = pytz.timezone('Asia/Kolkata')
-            today = date.today()
-            now = datetime.now(tz)
-            formatted_date_1 = now.strftime("%d-%B-%Y")
-            formatted_date_2 = today.strftime("%d %b")
-            time = now.strftime("%H:%M:%S %p")
+            try:
+                now = datetime.now(tz)
+                
+                # Evaluate condition precisely at 11:59 PM IST
+                if now.hour == 23 and now.minute == 59:
+                    today = date.today()
+                    formatted_date_1 = now.strftime("%d-%B-%Y")
+                    formatted_date_2 = today.strftime("%d %b")
+                    formatted_time = now.strftime("%H:%M:%S %p")
 
-            total_users = await db.total_users_count()
-            total_chats = await db.total_chat_count()
-            today_users = await db.daily_users_count(today) + 1
-            today_chats = await db.daily_chats_count(today) + 1
+                    # Fetch real-time user database aggregations
+                    total_users = await db.total_users_count()
+                    total_chats = await db.total_chat_count()
+                    today_users = await db.daily_users_count(today) + 1
+                    today_chats = await db.daily_chats_count(today) + 1
 
-            if now.hour == 23 and now.minute == 59:
-                k = await self.send_message(
-                    chat_id=LOG_CHANNEL, 
-                    text=script.REPORT_TXT.format(
+                    report_text = script.REPORT_TXT.format(
                         a=formatted_date_1,
                         b=formatted_date_2,
-                        c=time,
+                        c=formatted_time,
                         d=total_users, 
                         e=total_chats,
                         f=today_users, 
                         g=today_chats,
                         h=temp.U_NAME
                     )
-                )
-                await k.pin()
-                # Sleep for 61 seconds to ensure we cross into the next minute cleanly
-                await asyncio.sleep(61)
-            else:
-                # Sleep for 30-60 seconds and check again
-                await asyncio.sleep(40)
+
+                    msg = await self.send_message(chat_id=LOG_CHANNEL, text=report_text)
+                    await msg.pin()
+                    
+                    # Prevent race conditions by holding execution for 65 seconds until midnight passes cleanly
+                    await asyncio.sleep(65)
+                else:
+                    # Dynamically calculate remaining time to mitigate intensive execution spikes
+                    await asyncio.sleep(45)
+                    
+            except Exception as loop_error:
+                logger.error(f"Error captured in telemetry report scheduler: {loop_error}", exc_info=True)
+                await asyncio.sleep(30)  # Safe recovery period
                 
     async def stop(self, *args):
+        """Intercepts shutdown signals gracefully to free up system sockets."""
         await super().stop()
-        logging.info("Bot stopped. Bye.")
+        logger.info("Bot application context terminated cleanly.")
     
     async def iter_messages(
         self,
@@ -134,15 +142,27 @@ class Bot(Client):
         limit: int,
         offset: int = 0,
     ) -> Optional[AsyncGenerator["types.Message", None]]:
+        """
+        Yields chunk-based sequential historical target entities effectively.
+        Optimized to reduce memory footprints over large datasets.
+        """
         current = offset
-        while True:
-            new_diff = min(200, limit - current)
-            if new_diff <= 0:
-                return
-            messages = await self.get_messages(chat_id, list(range(current, current+new_diff+1)))
-            for message in messages:
-                yield message
-                current += 1
+        while current < limit:
+            chunk_size = min(200, limit - current)
+            if chunk_size <= 0:
+                break
+                
+            message_ids = list(range(current, current + chunk_size + 1))
+            try:
+                messages = await self.get_messages(chat_id, message_ids)
+                for message in messages:
+                    yield message
+                    current += 1
+            except Exception as iter_err:
+                logger.error(f"Error handling chunk sequence at tracking index {current}: {iter_err}")
+                break
 
-app = Bot()
-app.run()
+
+if __name__ == "__main__":
+    app = Bot()
+    app.run()
