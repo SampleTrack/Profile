@@ -6,7 +6,6 @@ marshmallow
 umongo
 requests
 bs4
-imdbpy
 datetime
 aiohttp
 aiofiles 
