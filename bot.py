@@ -57,8 +57,8 @@ class Bot(Client):
         bind_address = "0.0.0.0"
         await web.TCPSite(app, bind_address, PORT).start()
 
-        # Add a job to send a message at 11:59 PM daily
-        await self.send_report_message()
+        # FIX: Use asyncio.create_task to run this in the background without blocking updates
+        asyncio.create_task(self.send_report_message())
     
     async def send_report_message(self):
         while True:
@@ -89,11 +89,11 @@ class Bot(Client):
                     )
                 )
                 await k.pin()
-                # Sleep for 1 minute to avoid sending multiple messages
-                await asyncio.sleep(60)
+                # Sleep for 61 seconds to ensure we cross into the next minute cleanly
+                await asyncio.sleep(61)
             else:
-                # Sleep for 1 minute and check again
-                await asyncio.sleep(60)
+                # Sleep for 30-60 seconds and check again
+                await asyncio.sleep(40)
                 
     async def stop(self, *args):
         await super().stop()
@@ -105,29 +105,6 @@ class Bot(Client):
         limit: int,
         offset: int = 0,
     ) -> Optional[AsyncGenerator["types.Message", None]]:
-        """Iterate through a chat sequentially.
-        This convenience method does the same as repeatedly calling :meth:`~pyrogram.Client.get_messages` in a loop, thus saving
-        you from the hassle of setting up boilerplate code. It is useful for getting the whole chat messages with a
-        single call.
-        Parameters:
-            chat_id (``int`` | ``str``):
-                Unique identifier (int) or username (str) of the target chat.
-                For your personal cloud (Saved Messages) you can simply use "me" or "self".
-                For a contact that exists in your Telegram address book you can use his phone number (str).
-                
-            limit (``int``):
-                Identifier of the last message to be returned.
-                
-            offset (``int``, *optional*):
-                Identifier of the first message to be returned.
-                Defaults to 0.
-        Returns:
-            ``Generator``: A generator yielding :obj:`~pyrogram.types.Message` objects.
-        Example:
-            .. code-block:: python
-                for message in app.iter_messages("pyrogram", 1, 15000):
-                    print(message.text)
-        """
         current = offset
         while True:
             new_diff = min(200, limit - current)
@@ -137,7 +114,6 @@ class Bot(Client):
             for message in messages:
                 yield message
                 current += 1
-
 
 app = Bot()
 app.run()
