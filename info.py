@@ -76,6 +76,15 @@ MELCOW_NEW_USERS = is_enabled(environ.get('MELCOW_NEW_USERS', "True"), True)
 IMDB_TEMPLATE = environ.get("IMDB_TEMPLATE", script.IMDB_TEMPLATE)
 
 # Others
+IS_VERIFY = is_enabled((environ.get('IS_VERIFY', 'True')), True)
+HOW_TO_VERIFY = environ.get('HOW_TO_VERIFY', "https://t.me/+IvrcMfPKCMxkNjVl")
+VERIFY2_URL = environ.get('VERIFY2_URL', "kingurl.in")
+VERIFY2_API = environ.get('VERIFY2_API', "d5be075758edd71808de5e98b339af720e5eabce")
+SHORTLINK_URL = environ.get('SHORTLINK_URL', 'runurl.in')
+SHORTLINK_API = environ.get('SHORTLINK_API', '868966540ff18e4c2ad2e73343cb2f33181acedb')
+IS_SHORTLINK = is_enabled((environ.get('IS_SHORTLINK', 'False')), False)
+
+# Others
 PORT = environ.get("PORT", "8080")
 IMDB_DELET_TIME = int(environ.get('IMDB_DELET_TIME', "300"))
 PM_IMDB = is_enabled(environ.get('PM_IMDB', "True"), True)
